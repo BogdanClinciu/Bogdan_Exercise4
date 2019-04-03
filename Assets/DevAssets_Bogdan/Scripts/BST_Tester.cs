@@ -45,6 +45,8 @@ public class BST_Tester : MonoBehaviour
         Debug.Log(debugString);
         Debug.Log(bst.Any(a => a.NodeValue.Contains("z")));
 
+        bst.DoForeach((urnode) => urnode.NodeValue = urnode.NodeValue.ToUpper());
+
         RecursiveCreateSpheres(ref bst.topNode, Vector3.zero, transform);
     }
 

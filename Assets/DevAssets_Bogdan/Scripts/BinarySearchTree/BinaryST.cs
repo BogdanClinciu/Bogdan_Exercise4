@@ -23,6 +23,7 @@ public class BinaryST<T>
 
     #region BinaryST Operations
 
+        // TODO: Add foreach if needed
 
         private void RecursiveFromList(List<T> dataList, ref Node<T> refNode, int start, int end)
         {
@@ -96,10 +97,27 @@ public class BinaryST<T>
             return returnList;
         }
 
+        public void DoForeach(System.Action<Node<T>> doAction)
+        {
+            DoForeachRecursive(ref topNode, doAction);
+        }
 
     #endregion
 
     #region Private recursives
+
+        private void DoForeachRecursive(ref Node<T> node, System.Action<Node<T>> doAction)
+        {
+            if(node == null)
+            {
+                return;
+            }
+
+            doAction(node);
+
+            DoForeachRecursive(ref node.LeftNode, doAction);
+            DoForeachRecursive(ref node.RightNode, doAction);
+        }
 
         private void AllRecursive(ref Node<T> node, System.Predicate<Node<T>> predicate, List<T> returnList)
         {
