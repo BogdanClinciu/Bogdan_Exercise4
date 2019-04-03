@@ -10,22 +10,22 @@ public class BinaryST<T>
         topNode = null;
     }
 
-    public BinaryST(T topNodeValue, int topNodeId)
+    public BinaryST(T topNodeValue, string topNodeId)
     {
         topNode = new Node<T>(topNodeValue);
         topNode.id = topNodeId;
     }
 
-    public BinaryST(List<T> dataList)
+    public BinaryST(List<T> dataList, List<string> nameList)
     {
-        RecursiveFromList(dataList, ref topNode, 0, dataList.Count - 1);
+        RecursiveFromList(dataList, nameList, ref topNode, 0, dataList.Count - 1);
     }
 
     #region BinaryST Operations
 
         // TODO: Add foreach if needed
 
-        private void RecursiveFromList(List<T> dataList, ref Node<T> refNode, int start, int end)
+        private void RecursiveFromList(List<T> dataList, List<string> nameList, ref Node<T> refNode, int start, int end)
         {
             if(end - start < 0)
             {
@@ -34,10 +34,10 @@ public class BinaryST<T>
 
             int mid = (end + start)/2;
             //Debug.Log("mid = " + end + "+" + start + " = " + mid);
-            refNode = new Node<T>(dataList[mid], mid);
+            refNode = new Node<T>(dataList[mid], nameList[mid]);
 
-            RecursiveFromList(dataList, ref refNode.LeftNode, start, mid - 1);
-            RecursiveFromList(dataList, ref refNode.RightNode, mid + 1, end);
+            RecursiveFromList(dataList, nameList, ref refNode.LeftNode, start, mid - 1);
+            RecursiveFromList(dataList, nameList, ref refNode.RightNode, mid + 1, end);
         }
 
         public List<T> ToOrderedList()
@@ -49,9 +49,9 @@ public class BinaryST<T>
             return returnList;
         }
 
-        public Node<T> GetNodeAt(int id)
+        public Node<T> GetNodeAt(string id)
         {
-            return ValueAtId(ref topNode, id);
+            return NodeAtID(ref topNode, id);
         }
 
         public void Add(Node<T> node)
@@ -60,7 +60,7 @@ public class BinaryST<T>
             //topNode = BalanceTree(topNode);
         }
 
-        public void Remove(int nodeId)
+        public void Remove(string nodeId)
         {
             if(ContainsId(nodeId))
             {
@@ -78,7 +78,7 @@ public class BinaryST<T>
             return ContainsIdRecursive(ref topNode, node.id);
         }
 
-        public bool ContainsId(int nodeId)
+        public bool ContainsId(string nodeId)
         {
             return ContainsIdRecursive(ref topNode, nodeId);
         }
@@ -201,19 +201,19 @@ public class BinaryST<T>
                 refNode = new Node<T>(node);
                 return;
             }
-            else if (refNode.id > node.id)
+            else if (refNode.id.CompareTo(node.id) > 0)
             {
                 AddRecursive(ref refNode.LeftNode, node);
                 return;
             }
-            else if (refNode.id <= node.id)
+            else if (refNode.id.CompareTo(node.id) <= 0)
             {
                 AddRecursive(ref refNode.RightNode, node);
                 return;
             }
         }
 
-        private bool ContainsIdRecursive(ref Node<T> refNode, int idToLookFor)
+        private bool ContainsIdRecursive(ref Node<T> refNode, string idToLookFor)
         {
             //Check if the topnode is null
             if(refNode != null)
@@ -222,11 +222,11 @@ public class BinaryST<T>
                 {
                     return true;
                 }
-                else if (refNode.id > idToLookFor)
+                else if (refNode.id.CompareTo(idToLookFor) > 0)
                 {
                     return ContainsIdRecursive(ref refNode.LeftNode, idToLookFor);
                 }
-                else if (refNode.id <= idToLookFor)
+                else if (refNode.id.CompareTo(idToLookFor) <= 0)
                 {
                     return ContainsIdRecursive(ref refNode.RightNode, idToLookFor);
                 }
@@ -241,7 +241,7 @@ public class BinaryST<T>
             }
         }
 
-        private void RemoveRecursive(ref Node<T> refNode, int removeId)
+        private void RemoveRecursive(ref Node<T> refNode, string removeId)
         {
             // find the right node
             if(refNode.id.Equals(removeId))
@@ -249,12 +249,12 @@ public class BinaryST<T>
                 // proper node found begin remove checks
                 RemoveRecursiveCheck(ref refNode);
             }
-            else if (refNode.id > removeId)
+            else if (refNode.id.CompareTo(removeId) > 0)
             {
                 //recurse left
                 RemoveRecursive(ref refNode.LeftNode, removeId);
             }
-            else if (refNode.id <= removeId)
+            else if (refNode.id.CompareTo(removeId) <= 0)
             {
                 //recurse right
                 RemoveRecursive(ref refNode.RightNode, removeId);
@@ -298,19 +298,19 @@ public class BinaryST<T>
             }
         }
 
-        private Node<T> ValueAtId(ref Node<T> refNode, int id)
+        private Node<T> NodeAtID(ref Node<T> refNode, string id)
         {
             if(!refNode.Equals(null) && refNode.id.Equals(id))
             {
                 return refNode;
             }
-            else if(refNode.id > id)
+            else if(refNode.id.CompareTo(id) > 0)
             {
-                return ValueAtId(ref refNode.LeftNode, id);
+                return NodeAtID(ref refNode.LeftNode, id);
             }
-            else if (refNode.id <= id)
+            else if (refNode.id.CompareTo(id) <= 0)
             {
-                return ValueAtId(ref refNode.RightNode, id);
+                return NodeAtID(ref refNode.RightNode, id);
             }
             else
             {
@@ -324,7 +324,7 @@ public class BinaryST<T>
 
 public class Node<T>
 {
-    public int id;
+    public string id;
     public T NodeValue;
 
     public Node<T> LeftNode;
@@ -341,7 +341,7 @@ public class Node<T>
         NodeValue = nodeValue;
     }
 
-    public Node(T nodeValue, int nodeId)
+    public Node(T nodeValue, string nodeId)
     {
         NodeValue = nodeValue;
         id = nodeId;
