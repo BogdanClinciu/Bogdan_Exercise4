@@ -20,9 +20,15 @@ public class OrderView : MonoBehaviour
     [SerializeField]
     private GameObject orderHistoryPanel;
 
-
     [SerializeField]
     private GameObject finalizeOrderWarning;
+
+    [SerializeField]
+    private GameObject placeOutgoingOrdersPanel;
+    [SerializeField]
+    private RectTransform placeOutgoingContentsRect;
+
+
 
 
     public void OpenOutgoingOrdersPanel()
@@ -73,6 +79,12 @@ public class OrderView : MonoBehaviour
 
         finalizeOrderWarning.SetActive(false);
         OpenOutgoingOrdersPanel();
+    }
+
+    public void TogglePlaceOrdersPanel(bool show)
+    {
+        placeOutgoingOrdersPanel.SetActive(show);
+        LayoutRebuilder.ForceRebuildLayoutImmediate(placeOutgoingContentsRect);
     }
 
 }

@@ -12,6 +12,8 @@ public class OrderModel : MonoBehaviour
         private GameObject itemObjectPrefab;
         [SerializeField]
         private GameObject orderObjectPrefab;
+        [SerializeField]
+        private GameObject orderSheetObjectPrefab;
     #endregion
 
     #region Data sets
@@ -32,17 +34,25 @@ public class OrderModel : MonoBehaviour
 
 
         [SerializeField]
+        private RectTransform placedOrdersParent;
+
+
+        [SerializeField]
         private RectTransform outgoingOrdersItemParent;
         [SerializeField]
         private RectTransform orderHistoryItemPanel;
+        [SerializeField]
+        private RectTransform orderHistoryParent;
 
 
         private List<ItemObject> spawnedItemObjects;
         private List<ItemObject> spawnedItemObjectsInOrder;
         private List<OrderObject> spawnedOutgoingOrderObjects;
+        private List<OrderObject> spawnedOrderHistoryObjects;
 
         private List<ItemObject> spawnedOutgoingItemObjects;
         private List<ItemObject> spawnedHistoryItemObjects;
+        private List<OrderSheetObject> spawnedOrderSheets;
     #endregion
 
 
@@ -58,14 +68,87 @@ public class OrderModel : MonoBehaviour
             spawnedOutgoingOrderObjects = new List<OrderObject>();
             spawnedOutgoingItemObjects = new List<ItemObject>();
             spawnedHistoryItemObjects = new List<ItemObject>();
+            spawnedOrderSheets = new List<OrderSheetObject>();
+            spawnedOrderHistoryObjects = new List<OrderObject>();
 
             inventory = new BinaryST<InventoryItemInstance>();
+            orderHistory = new BinaryST<Order>();
             itemsInCurentOrder = new List<InventoryItemInstance>();
             outgoingOrders = new List<Order>();
         #endregion
 
         LoadDatabases();
         SearchInventory(null);
+        SearchOrderHistory(null);
+    }
+
+    public void ClearCurentOrderPanel()
+    {
+        foreach (ItemObject item in spawnedItemObjectsInOrder)
+        {
+            Destroy(item.gameObject);
+        }
+        spawnedItemObjectsInOrder.Clear();
+    }
+
+    public bool BeginPlaceOutgoingOrders()
+    {
+        if(outgoingOrders.Count < 1)
+        {
+            return false;
+        }
+
+
+        //clear placed orders from before
+        foreach (OrderSheetObject sheet in spawnedOrderSheets)
+        {
+            Destroy(sheet.gameObject);
+        }
+        spawnedOrderSheets.Clear();
+
+        //populate the place orders panel
+        foreach (Order order in outgoingOrders)
+        {
+            OrderSheetObject newOrderSheet = Instantiate(orderSheetObjectPrefab, placedOrdersParent).GetComponent<OrderSheetObject>();
+            newOrderSheet.UpdateOrderSheetItem(order);
+            RectTransform newOrderSheetParent = newOrderSheet.GetComponent<RectTransform>();
+            CreateItemObjects(
+                Constants.ItemInteraction.NoInteraction,
+                newOrderSheetParent,
+                order.Items,
+                null,
+                false
+            );
+
+            spawnedOrderSheets.Add(newOrderSheet);
+        }
+
+        return true;
+    }
+
+    public void ConfirmPlaceOutgoingOrders()
+    {
+        foreach (Order order in outgoingOrders)
+        {
+            orderHistory.Add(new Node<Order>(order, order.ClientName.ToLower()));
+        }
+
+        //add outgoing to history
+        //clear the outgoing list
+        outgoingOrders.Clear();
+        CreateOrderObjects(false, outgoingOrdersParent, outgoingOrders, spawnedOutgoingOrderObjects, true, false);
+
+        //destroy placed orders from placed panel
+        foreach (OrderSheetObject sheet in spawnedOrderSheets)
+        {
+            Destroy(sheet.gameObject);
+        }
+        spawnedOrderSheets.Clear();
+
+        //Save the updated inventory database and order history
+        SavedDatabaseHandler.SaveDatabase<InventoryItemInstance>(inventory.ToOrderedList());
+        SavedDatabaseHandler.SaveDatabase<Order>(orderHistory.ToOrderedList());
+        SearchOrderHistory(null);
     }
 
     #region Finalize order logic
@@ -120,41 +203,6 @@ public class OrderModel : MonoBehaviour
 
     #endregion
 
-    private void CreateOrderObjects(bool canEdit, RectTransform parentTransform, List<Order> orderList, List<OrderObject> spawnedList, bool destroyObjects, bool isHistory)
-    {
-        foreach (OrderObject orderObject in spawnedList)
-        {
-            if(!destroyObjects)
-            {
-                orderObject.gameObject.SetActive(false);
-            }
-            else
-            {
-                Destroy(orderObject.gameObject);
-            }
-        }
-
-        if(destroyObjects)
-        {
-            spawnedList.Clear();
-        }
-
-        foreach (Order order in orderList)
-        {
-            if(!spawnedList.Exists(i => i.ID.Equals(order.ClientName)))
-            {
-                OrderObject newOrderObject = Instantiate(orderObjectPrefab, parentTransform).GetComponent<OrderObject>();
-                newOrderObject.UpdateOrderObject(canEdit, order.ClientName, order.TotalCost(), order.TotalDiscount(), () => OrderButtonAction(order, true), () => ShowOrderItems(order, isHistory));
-                spawnedList.Add(newOrderObject);
-            }
-            else
-            {
-                spawnedList.Find(i => i.ID.Equals(order.ClientName)).UpdateOrderObject(canEdit, order.ClientName, order.TotalCost(), order.TotalDiscount(), () => OrderButtonAction(order, true), () => ShowOrderItems(order, isHistory));
-            }
-        }
-    }
-
-
     public bool CompleteNewItemAdd(string name, string basePrice, string quantity, int discount)
     {
         if(inventory.ContainsId(name))
@@ -175,7 +223,7 @@ public class OrderModel : MonoBehaviour
         // view -> update inventory items
         SearchInventory(null);
 
-        SavedDatabaseHandler.SaveDatabase<InventoryItemInstance>(inventory.ToOrderedList(), false);
+        SavedDatabaseHandler.SaveDatabase<InventoryItemInstance>(inventory.ToOrderedList());
         return true;
     }
 
@@ -209,21 +257,92 @@ public class OrderModel : MonoBehaviour
 
     }
 
+    public void SearchOrderHistory(string searchQuery)
+    {
+        List<Order> searchResults = new List<Order>();
+        //get results from bst -> request update in view
+
+        //find all items with matching name
+        if(!string.IsNullOrEmpty(searchQuery))
+        {
+            if(orderHistory.ContainsId(searchQuery.ToLower()))
+            {
+                searchResults.Add(orderHistory.GetNodeAt(searchQuery.ToLower()).NodeValue);
+                CreateOrderObjects(false, orderHistoryParent, searchResults, spawnedOrderHistoryObjects, false, true);
+                return;
+            }
+
+            //display items matching
+            searchResults = orderHistory.All(item => item.id.ToLower().StartsWith(searchQuery.ToLower()));
+            CreateOrderObjects(false, orderHistoryParent, searchResults, spawnedOrderHistoryObjects, false, true);
+            return;
+        }
+
+        //display all items
+        searchResults = orderHistory.ToOrderedList();
+        CreateOrderObjects(false, orderHistoryParent, searchResults, spawnedOrderHistoryObjects, false, true);
+    }
+
     ///<summary>
     /// Creates the item objects from the given <paramref name="itemList"/> if they do not already exist in the provided <paramref name="spawnedList"/>, and disables ones that are not present.
     /// Objects are instantiated into the apropriate <paramref name="parentTransform"/>, and the <paramref name="interaction"/> enum determines the possible functions of that object.
     ///</summary>
     private void CreateItemObjects(Constants.ItemInteraction interaction, RectTransform parentTransform, List<InventoryItemInstance> itemList, List<ItemObject> spawnedList, bool destroyObjects)
     {
-        foreach (ItemObject item in spawnedList)
+        if(spawnedList != null)
         {
-            if(!destroyObjects)
+            foreach (ItemObject item in spawnedList)
             {
-                item.gameObject.SetActive(false);
+                if(!destroyObjects)
+                {
+                    item.gameObject.SetActive(false);
+                }
+                else
+                {
+                    Destroy(item.gameObject);
+                }
+            }
+
+            if(destroyObjects)
+            {
+                spawnedList.Clear();
+            }
+        }
+
+        foreach (InventoryItemInstance itemInstance in itemList)
+        {
+            if(spawnedList != null)
+            {
+                if(!spawnedList.Exists(i => i.ID.Equals(itemInstance.Item.ID)))
+                {
+                    ItemObject newItemObject = Instantiate(itemObjectPrefab, parentTransform).GetComponent<ItemObject>();
+                    newItemObject.UpdateItemObject(interaction, itemInstance.Item.Name, itemInstance.Quantity, itemInstance.DiscountedPrice, () => ItemButtonAction(itemInstance, interaction), () => OpenStockEditPanel(itemInstance));
+                    spawnedList.Add(newItemObject);
+                }
+                else
+                {
+                    spawnedList.Find(i => i.ID.Equals(itemInstance.Item.ID)).UpdateItemObject(interaction, itemInstance.Item.Name, itemInstance.Quantity, itemInstance.DiscountedPrice, () => ItemButtonAction(itemInstance, interaction), () => OpenStockEditPanel(itemInstance));
+                }
             }
             else
             {
-                Destroy(item.gameObject);
+                ItemObject newItemObject = Instantiate(itemObjectPrefab, parentTransform).GetComponent<ItemObject>();
+                newItemObject.UpdateItemObject(interaction, itemInstance.Item.Name, itemInstance.Quantity, itemInstance.DiscountedPrice, () => ItemButtonAction(itemInstance, interaction), () => OpenStockEditPanel(itemInstance));
+            }
+        }
+    }
+
+    private void CreateOrderObjects(bool canEdit, RectTransform parentTransform, List<Order> orderList, List<OrderObject> spawnedList, bool destroyObjects, bool isHistory)
+    {
+        foreach (OrderObject orderObject in spawnedList)
+        {
+            if(!destroyObjects)
+            {
+                orderObject.gameObject.SetActive(false);
+            }
+            else
+            {
+                Destroy(orderObject.gameObject);
             }
         }
 
@@ -232,17 +351,17 @@ public class OrderModel : MonoBehaviour
             spawnedList.Clear();
         }
 
-        foreach (InventoryItemInstance itemInstance in itemList)
+        foreach (Order order in orderList)
         {
-            if(!spawnedList.Exists(i => i.ID.Equals(itemInstance.Item.ID)))
+            if(!spawnedList.Exists(i => i.ID.Equals(order.ID)))
             {
-                ItemObject newItemObject = Instantiate(itemObjectPrefab, parentTransform).GetComponent<ItemObject>();
-                newItemObject.UpdateItemObject(interaction, itemInstance.Item.Name, itemInstance.Quantity, itemInstance.DiscountedPrice, () => ItemButtonAction(itemInstance, interaction));
-                spawnedList.Add(newItemObject);
+                OrderObject newOrderObject = Instantiate(orderObjectPrefab, parentTransform).GetComponent<OrderObject>();
+                newOrderObject.UpdateOrderObject(canEdit, order.ClientName, order.TotalCost(), order.TotalDiscount(), () => OrderButtonAction(order, true), () => ShowOrderItems(order, isHistory));
+                spawnedList.Add(newOrderObject);
             }
             else
             {
-                spawnedList.Find(i => i.ID.Equals(itemInstance.Item.ID)).UpdateItemObject(interaction, itemInstance.Item.Name, itemInstance.Quantity, itemInstance.DiscountedPrice, () => ItemButtonAction(itemInstance, interaction));
+                spawnedList.Find(i => i.ID.Equals(order.ID)).UpdateOrderObject(canEdit, order.ClientName, order.TotalCost(), order.TotalDiscount(), () => OrderButtonAction(order, true), () => ShowOrderItems(order, isHistory));
             }
         }
     }
@@ -300,7 +419,6 @@ public class OrderModel : MonoBehaviour
         }
 
     #endregion
-
 
     #region Item object actions
 
@@ -387,6 +505,14 @@ public class OrderModel : MonoBehaviour
             CreateItemObjects(Constants.ItemInteraction.RemoveFromCart, currentOrderItemParent, itemsInCurentOrder, spawnedItemObjectsInOrder, true);
         }
 
+        ///<summary>
+        /// A button function of an item object, asigned at ItemObject instantiate.
+        ///</summary>
+        private void OpenStockEditPanel(InventoryItemInstance instanceToEdit)
+        {
+            Debug.Log("Double click on: " + instanceToEdit.Item.Name);
+        }
+
     #endregion
 
     #region QuantityUtils
@@ -432,17 +558,30 @@ public class OrderModel : MonoBehaviour
     ///</summary>
     private void LoadDatabases()
     {
-        List<InventoryItemInstance> data;
-        List<string> dataIDs = new List<string>();
+        List<InventoryItemInstance> itemData;
+        List<string> itemDataIDs = new List<string>();
 
-        SavedDatabaseHandler.LoadDatabase<InventoryItemInstance>(out data, false);
+        SavedDatabaseHandler.LoadDatabase<InventoryItemInstance>(out itemData);
 
-        for (int i = 0; i < data.Count; i++)
+        for (int i = 0; i < itemData.Count; i++)
         {
-            dataIDs.Add(data[i].Item.Name.ToLower());
+            itemDataIDs.Add(itemData[i].Item.Name.ToLower());
         }
 
-        inventory = new BinaryST<InventoryItemInstance>(data, dataIDs);
+        inventory = new BinaryST<InventoryItemInstance>(itemData, itemDataIDs);
+
+
+        List<Order> orderData;
+        List<string> orderDataIDs = new List<string>();
+
+        SavedDatabaseHandler.LoadDatabase<Order>(out orderData);
+
+        for (int i = 0; i < orderData.Count; i++)
+        {
+            orderDataIDs.Add(orderData[i].ClientName.ToLower());
+        }
+
+        orderHistory = new BinaryST<Order>(orderData, orderDataIDs);
     }
 
 }

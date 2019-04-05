@@ -39,7 +39,7 @@ public class OrderController : MonoBehaviour
 
     #endregion
 
-    #region New item inputs
+    #region New/edit item inputs
 
         [Header("Add new item panel")]
 
@@ -64,7 +64,6 @@ public class OrderController : MonoBehaviour
 
     #endregion
 
-
     #region AmmountPopupLogic
 
         public void ConfirmAmmountChange()
@@ -79,6 +78,8 @@ public class OrderController : MonoBehaviour
     #endregion
 
     #region Inventory panel actions
+
+
         public void SearchInventory()
         {
             //sort request to Model -> update request to View
@@ -101,36 +102,37 @@ public class OrderController : MonoBehaviour
         public void FinalizeOrder()
         {
             view.FinalizeOrderAction(model.ConfirmFinalizeOrder(clientNameField.text));
+            clientNameField.text = string.Empty;
         }
 
         public void ClearCurentOrder()
         {
-            //send empty client name and list to Model -> view: update curent order panel
+            model.ClearCurentOrderPanel();
+            clientNameField.text = string.Empty;
         }
 
-        /*button gameobject functions
-            Add new item - opens add new item panel
-            Outgoing order panel toggle
-            Order history panel toggle
-        */
     #endregion
-
 
     #region Orders panel actions
 
-        public void SearchOutgoingOrders()
+        public void PlaceAllOutgoingOrders()
         {
-            //send client name to Model -> view: update outgoing orders
+            view.TogglePlaceOrdersPanel(model.BeginPlaceOutgoingOrders());
+        }
+
+        public void FinishPlaceAllOutgoingOrders()
+        {
+            model.ConfirmPlaceOutgoingOrders();
+            view.TogglePlaceOrdersPanel(false);
         }
 
     #endregion
-
 
     #region History panel actions
 
         public void SearchOrdersHistory()
         {
-            //send client name to Model -> view: update outgoing orders
+            model.SearchOrderHistory(historyClientSearchField.text);
         }
 
     #endregion

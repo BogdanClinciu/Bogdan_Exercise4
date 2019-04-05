@@ -1,0 +1,43 @@
+{
+    "serializedList": [
+        {
+            "ID": "bob",
+            "ClientName": "Bob",
+            "Items": [
+                {
+                    "Item": {
+                        "ID": "m10x30-bolt",
+                        "Name": "M10x30-Bolt",
+                        "BasePrice": 2.240000009536743
+                    },
+                    "Quantity": 50,
+                    "discount": 0
+                },
+                {
+                    "Item": {
+                        "ID": "oring",
+                        "Name": "ORing",
+                        "BasePrice": 5.0
+                    },
+                    "Quantity": 20,
+                    "discount": 0
+                }
+            ]
+        },
+        {
+            "ID": "testOrder",
+            "ClientName": "TestOrder",
+            "Items": [
+                {
+                    "Item": {
+                        "ID": "m10x30-bolt",
+                        "Name": "M10x30-Bolt",
+                        "BasePrice": 2.240000009536743
+                    },
+                    "Quantity": 100,
+                    "discount": 0
+                }
+            ]
+        }
+    ]
+}

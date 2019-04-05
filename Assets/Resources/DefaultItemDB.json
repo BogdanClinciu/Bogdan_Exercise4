@@ -1,0 +1,31 @@
+{
+    "serializedList": [
+        {
+            "Item": {
+                "ID": "m10x30-bolt",
+                "Name": "M10x30-Bolt",
+                "BasePrice": 2.240000009536743
+            },
+            "Quantity": 4925,
+            "discount": 0
+        },
+        {
+            "Item": {
+                "ID": "oring",
+                "Name": "ORing",
+                "BasePrice": 5.0
+            },
+            "Quantity": 1630,
+            "discount": 0
+        },
+        {
+            "Item": {
+                "ID": "wrench",
+                "Name": "Wrench",
+                "BasePrice": 65.0
+            },
+            "Quantity": 55,
+            "discount": 0
+        }
+    ]
+}

@@ -8,6 +8,8 @@
     public const string AMMOUNT_INSTOCK_PREFIX = "In stock:";
     public const string AMMOUNT_INCART_PREFIX = "In order:";
 
+    public const float DOUBLE_CLICK_TIME = 0.25f;
+
     public enum ItemInteraction
     {
         NoInteraction,
