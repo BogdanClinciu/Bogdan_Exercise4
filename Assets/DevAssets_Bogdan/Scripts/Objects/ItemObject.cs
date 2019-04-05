@@ -28,6 +28,10 @@ public class ItemObject : MonoBehaviour
     [SerializeField]
     private GameObject removeCartImage;
 
+    private void OnDestroy()
+    {
+        editButton.onClick.RemoveAllListeners();
+    }
 
     public void UpdateItemObject(Constants.ItemInteraction interactionType, string itemName, int stock, float price, UnityEngine.Events.UnityAction clickAction)
     {

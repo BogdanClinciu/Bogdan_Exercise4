@@ -69,7 +69,7 @@ public class OrderController : MonoBehaviour
 
         public void ConfirmAmmountChange()
         {
-            if(model.AddItemToCurentOrder(ammountPopupInputField.text))
+            if(model.ConfirmAddItemToCurentOrder(ammountPopupInputField.text))
             {
                 view.ToggleAmmountPrompt(false,0,0);
                 ammountPopupInputField.text = string.Empty;
@@ -87,7 +87,7 @@ public class OrderController : MonoBehaviour
 
         public void ConfirmNewItem()
         {
-            if (model.CompleteItemAdd(newItemNameField.text, newItemPriceField.text, newItemQuantityField.text, (int)newItemDiscountSlider.value))
+            if (model.CompleteNewItemAdd(newItemNameField.text, newItemPriceField.text, newItemQuantityField.text, (int)newItemDiscountSlider.value))
             {
                 addNewItemParent.SetActive(false); //<----- move to view
                 newItemNameField.text = string.Empty;
@@ -100,7 +100,7 @@ public class OrderController : MonoBehaviour
 
         public void FinalizeOrder()
         {
-            //send client name and list to Model -> view: update and show outgoing orders
+            view.FinalizeOrderAction(model.ConfirmFinalizeOrder(clientNameField.text));
         }
 
         public void ClearCurentOrder()

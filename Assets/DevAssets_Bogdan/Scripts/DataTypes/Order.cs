@@ -20,7 +20,7 @@ public class Order
         float totalCost = 0;
         foreach(InventoryItemInstance item in Items)
         {
-            totalCost += item.DiscountedPrice;
+            totalCost += item.DiscountedPrice * item.Quantity;
         }
         return totalCost;
     }
@@ -30,7 +30,7 @@ public class Order
         float baseCost = 0;
         foreach(InventoryItemInstance item in Items)
         {
-            baseCost += item.Item.BasePrice;
+            baseCost += item.Item.BasePrice * item.Quantity;
         }
         return baseCost - TotalCost();
     }

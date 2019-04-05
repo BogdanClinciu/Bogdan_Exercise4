@@ -15,6 +15,33 @@ public class OrderView : MonoBehaviour
     [SerializeField]
     private GameObject ammountPromptWarningText;
 
+    [SerializeField]
+    private GameObject outgoingOrdersPanel;
+    [SerializeField]
+    private GameObject orderHistoryPanel;
+
+
+    [SerializeField]
+    private GameObject finalizeOrderWarning;
+
+
+    public void OpenOutgoingOrdersPanel()
+    {
+        outgoingOrdersPanel.SetActive(true);
+        orderHistoryPanel.SetActive(false);
+    }
+
+    public void OpenOrderHistoryPanel()
+    {
+        orderHistoryPanel.SetActive(true);
+        outgoingOrdersPanel.SetActive(false);
+    }
+
+    public void OpenInventoryPanel()
+    {
+        orderHistoryPanel.SetActive(false);
+        outgoingOrdersPanel.SetActive(false);
+    }
 
 
     public void ToggleAddItemWarning(bool show)
@@ -34,6 +61,18 @@ public class OrderView : MonoBehaviour
     public void ToggleAmmountPopupWarning(bool show)
     {
         ammountPromptWarningText.SetActive(show);
+    }
+
+    public void FinalizeOrderAction(bool validated)
+    {
+        if(!validated)
+        {
+            finalizeOrderWarning.SetActive(true);
+            return;
+        }
+
+        finalizeOrderWarning.SetActive(false);
+        OpenOutgoingOrdersPanel();
     }
 
 }
