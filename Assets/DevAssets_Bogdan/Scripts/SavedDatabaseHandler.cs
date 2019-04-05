@@ -69,6 +69,9 @@ public class SavedDatabaseHandler
         }
 	}
 
+    ///<summary>
+    ///Returns the corect database filepath for the given type T, if it exists.
+    ///</summary>
     private static string FilePath<T>()
     {
         if(typeof(T) == typeof(InventoryItemInstance))
@@ -84,6 +87,9 @@ public class SavedDatabaseHandler
         return string.Empty;
     }
 
+    ///<summary>
+    ///Returns the corect default database text asset for the given type T, from the resources folder.
+    ///</summary>
     private static TextAsset DefaultDB<T>()
     {
         if(typeof(T) == typeof(InventoryItemInstance))
@@ -99,6 +105,9 @@ public class SavedDatabaseHandler
         return null;
     }
 
+    ///<summary>
+    ///Loads the default database text asset files if they have not already been loaded.
+    ///</summary>
     private static void LoadDefaluts()
     {
         if(DefaultItemDB == null)

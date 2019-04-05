@@ -22,12 +22,16 @@ public class OrderObject : MonoBehaviour
     private Button viewItemsButton;
 
 
+
     private void OnDestroy()
     {
         editButton.onClick.RemoveAllListeners();
         viewItemsButton.onClick.RemoveAllListeners();
     }
 
+    ///<summary>
+    ///Updates this order object's ui and sets its button actions.
+    ///</summary>
     public void UpdateOrderObject(bool canEdit, string clientName, float totalCost, float totalDiscount, UnityEngine.Events.UnityAction removeAction, UnityEngine.Events.UnityAction viewAction)
     {
         editButton.gameObject.SetActive(canEdit);

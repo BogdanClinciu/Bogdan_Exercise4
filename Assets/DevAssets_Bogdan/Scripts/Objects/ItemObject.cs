@@ -34,11 +34,15 @@ public class ItemObject : MonoBehaviour
 
     private UnityAction doubleClickAction;
 
+
     private void OnDestroy()
     {
         editButton.onClick.RemoveAllListeners();
     }
 
+    ///<summary>
+    ///The double click action of this item object, triggered from the gameobject's event trigger component (onClick).
+    ///</summary>
     public void DoubleClickAction()
     {
         if(isDoubleClickEditable)
@@ -55,6 +59,10 @@ public class ItemObject : MonoBehaviour
         }
     }
 
+
+    ///<summary>
+    ///Updates the item object's interface and assigns its button and double click actions.
+    ///</summary>
     public void UpdateItemObject(Constants.ItemInteraction interactionType, string itemName, int stock, float price, UnityAction clickAction, UnityAction doubleAction)
     {
         switch (interactionType)

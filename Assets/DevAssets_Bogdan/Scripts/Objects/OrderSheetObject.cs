@@ -15,7 +15,9 @@ public class OrderSheetObject : MonoBehaviour
     [SerializeField]
     private Text totalDiscountText;
 
-
+    ///<summary>
+    ///Updates the order sheet object's ui and returns the item object parent for item addition by the model.
+    ///</summary>
     public RectTransform UpdateOrderSheetItem(Order Order)
     {
         clientNameText.text = Order.ClientName;

@@ -70,7 +70,7 @@ public class OrderController : MonoBehaviour
         {
             if(model.ConfirmAddItemToCurentOrder(ammountPopupInputField.text))
             {
-                view.ToggleAmmountPrompt(false,0,0);
+                view.ToggleAmmountPopup(false,0,0);
                 ammountPopupInputField.text = string.Empty;
             }
         }
