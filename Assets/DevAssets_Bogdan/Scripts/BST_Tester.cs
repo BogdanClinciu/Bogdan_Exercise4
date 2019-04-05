@@ -23,15 +23,8 @@ public class BST_Tester : MonoBehaviour
     {
         stockStrings = new List<string>{"first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eight", "nineth", "tenth", "eleventh", "twelveth"};
 
-        BinaryST<string> bst = new BinaryST<string>(stockStrings);
+        BinaryST<string> bst = new BinaryST<string>(stockStrings,stockStrings);
 
-        // for (int i = 0; i < stockStrings.Count; i++)
-        // {
-        //     Node<string> nodeToAdd = new Node<string>(stockStrings[i]);
-        //     nodeToAdd.id = -stockStrings.Count/2 + i;
-        //     Debug.Log(nodeToAdd.id + " - " + i);
-        //     bst.Add(nodeToAdd);
-        // }
 
         List<string> bstList = bst.ToOrderedList();
 
@@ -43,7 +36,8 @@ public class BST_Tester : MonoBehaviour
         }
 
         Debug.Log(debugString);
-        Debug.Log(bst.Any(a => a.NodeValue.Contains("z")));
+        Debug.Log(bst.Any(a => a.NodeValue.Contains("x")));
+        Debug.Log(bst.GetNodeAt("sec.ond").NodeValue);
 
         bst.DoForeach((urnode) => urnode.NodeValue = urnode.NodeValue.ToUpper());
 

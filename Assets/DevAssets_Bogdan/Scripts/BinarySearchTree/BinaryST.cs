@@ -300,7 +300,7 @@ public class BinaryST<T>
 
         private Node<T> NodeAtID(ref Node<T> refNode, string id)
         {
-            if(!refNode.Equals(null) && refNode.id.Equals(id))
+            if(refNode == null && refNode.id.Equals(id))
             {
                 return refNode;
             }

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 774971029057003232}
   - component: {fileID: 774971029057003233}
   m_Layer: 5
-  m_Name: ItemNameText
+  m_Name: ClientNameText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -78,7 +78,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Item Name
+  m_Text: Client Name
 --- !u!1 &774971029497006726
 GameObject:
   m_ObjectHideFlags: 0
@@ -91,7 +91,7 @@ GameObject:
   - component: {fileID: 774971029497006731}
   - component: {fileID: 774971029497006728}
   m_Layer: 5
-  m_Name: PriceLabel
+  m_Name: DiscountLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -111,7 +111,7 @@ RectTransform:
   m_Father: {fileID: 774971031035477337}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.4407413, y: 0}
+  m_AnchorMin: {x: 0.4583632, y: 0}
   m_AnchorMax: {x: 0.6617057, y: 0.4500002}
   m_AnchoredPosition: {x: 2.5000916, y: 0.000091552734}
   m_SizeDelta: {x: -5, y: 0}
@@ -157,81 +157,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Price: '
---- !u!1 &774971029786584730
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 774971029786584733}
-  - component: {fileID: 774971029786584735}
-  - component: {fileID: 774971029786584732}
-  m_Layer: 5
-  m_Name: AddImage
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &774971029786584733
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 774971029786584730}
-  m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 774971029788502617}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &774971029786584735
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 774971029786584730}
-  m_CullTransparentMesh: 0
---- !u!114 &774971029786584732
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 774971029786584730}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
-      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 10915, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 0
-  m_PreserveAspect: 1
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
+  m_Text: 'Discount: '
 --- !u!1 &774971029788502614
 GameObject:
   m_ObjectHideFlags: 0
@@ -245,7 +171,7 @@ GameObject:
   - component: {fileID: 774971029788502619}
   - component: {fileID: 774971029788502616}
   m_Layer: 5
-  m_Name: AddToCartButton
+  m_Name: DeleteOrderButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -262,7 +188,6 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 774971029786584733}
   - {fileID: 1971392357895560737}
   m_Father: {fileID: 774971031035477337}
   m_RootOrder: 5
@@ -363,7 +288,7 @@ GameObject:
   - component: {fileID: 774971030181971638}
   - component: {fileID: 774971030181971639}
   m_Layer: 5
-  m_Name: StockAmmountText
+  m_Name: CostAmmountText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -384,7 +309,7 @@ RectTransform:
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.24074131, y: 0}
-  m_AnchorMax: {x: 0.4407413, y: 0.45}
+  m_AnchorMax: {x: 0.4583632, y: 0.45}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -429,7 +354,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 99999
+  m_Text: $999.99
 --- !u!1 &774971030196497217
 GameObject:
   m_ObjectHideFlags: 0
@@ -442,7 +367,7 @@ GameObject:
   - component: {fileID: 774971030196497218}
   - component: {fileID: 774971030196497219}
   m_Layer: 5
-  m_Name: PriceText
+  m_Name: DiscountAmmountText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -521,7 +446,7 @@ GameObject:
   - component: {fileID: 774971030287469211}
   - component: {fileID: 774971030287469208}
   m_Layer: 5
-  m_Name: StockLabel
+  m_Name: CostLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -587,7 +512,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Stock: '
+  m_Text: 'Total cost: '
 --- !u!1 &774971031035477334
 GameObject:
   m_ObjectHideFlags: 0
@@ -599,9 +524,9 @@ GameObject:
   - component: {fileID: 774971031035477337}
   - component: {fileID: 774971031035477339}
   - component: {fileID: 774971031035477336}
-  - component: {fileID: 5964216457144244932}
+  - component: {fileID: 6371458482727654036}
   m_Layer: 5
-  m_Name: ItemObject
+  m_Name: OrderObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -669,7 +594,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
---- !u!114 &5964216457144244932
+--- !u!114 &6371458482727654036
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -678,16 +603,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 774971031035477334}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed3b30e4c6285184c856955c9920ff1e, type: 3}
+  m_Script: {fileID: 11500000, guid: d4582c1cff8ad4047b0620a2a9f77a57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemNameText: {fileID: 774971029057003233}
-  stockText: {fileID: 774971030181971639}
-  priceText: {fileID: 774971030196497219}
-  stockLabelText: {fileID: 774971030287469208}
+  clientNameText: {fileID: 774971029057003233}
+  totalCostText: {fileID: 774971030181971639}
+  totalDiscountText: {fileID: 774971030196497219}
   editButton: {fileID: 774971029788502616}
-  addToCartImage: {fileID: 774971029786584730}
-  removeCartImage: {fileID: 6872533837394438132}
 --- !u!1 &6872533837394438132
 GameObject:
   m_ObjectHideFlags: 0
@@ -718,7 +640,7 @@ RectTransform:
   m_LocalScale: {x: 1.0000005, y: 1.0000005, z: 1}
   m_Children: []
   m_Father: {fileID: 774971029788502617}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.2, y: 0.2}
   m_AnchorMax: {x: 0.8, y: 0.8}

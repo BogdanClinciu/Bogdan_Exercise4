@@ -16,6 +16,10 @@ public class ItemObject : MonoBehaviour
     [SerializeField]
     private Text priceText;
 
+
+    [SerializeField]
+    private Text stockLabelText;
+
     [SerializeField]
     private Button editButton;
 
@@ -31,11 +35,13 @@ public class ItemObject : MonoBehaviour
         {
             case Constants.ItemInteraction.NoInteraction:
             {
+                stockLabelText.text = Constants.AMMOUNT_LABEL;
                 editButton.gameObject.SetActive(false);
                 break;
             }
             case Constants.ItemInteraction.AddToCart:
             {
+                stockLabelText.text = Constants.STOCK_LABEL;
                 editButton.gameObject.SetActive(true);
                 addToCartImage.SetActive(true);
                 removeCartImage.SetActive(false);
@@ -43,6 +49,7 @@ public class ItemObject : MonoBehaviour
             }
             case Constants.ItemInteraction.RemoveFromCart:
             {
+                stockLabelText.text = Constants.AMMOUNT_LABEL;
                 editButton.gameObject.SetActive(true);
                 addToCartImage.SetActive(false);
                 removeCartImage.SetActive(true);

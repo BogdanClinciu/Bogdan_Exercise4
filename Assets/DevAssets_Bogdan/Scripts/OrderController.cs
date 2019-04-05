@@ -7,63 +7,95 @@ public class OrderController : MonoBehaviour
 {
     [SerializeField]
     private OrderModel model;
-
-    [Header("Inventory panel")]
-
     [SerializeField]
-    private InputField itemSearchField;
-    [SerializeField]
-    private InputField clientNameField;
+    private OrderView view;
+
+    #region Inventory panel inputs
+
+        [Header("Inventory panel")]
+
+        [SerializeField]
+        private InputField itemSearchField;
+        [SerializeField]
+        private InputField clientNameField;
+
+    #endregion
+
+    #region Orfer panel inputs
+
+        [Header("Orders panel")]
+
+        [SerializeField]
+        private InputField clientSearchField;
+
+    #endregion
+
+    #region History panel inputs
+
+        [Header("History panel")]
+
+        [SerializeField]
+        private InputField historyClientSearchField;
+
+    #endregion
+
+    #region New item inputs
+
+        [Header("Add new item panel")]
+
+        [SerializeField]
+        private GameObject addNewItemParent;
+
+        [SerializeField]
+        private InputField newItemNameField;
+        [SerializeField]
+        private InputField newItemPriceField;
+        [SerializeField]
+        private InputField newItemQuantityField;
+        [SerializeField]
+        private Slider newItemDiscountSlider;
+
+    #endregion
+
+    #region Ammount popup inputs
+
+        [SerializeField]
+        private InputField ammountPopupInputField;
+
+    #endregion
 
 
-    [Header("Orders panel")]
+    #region AmmountPopupLogic
 
-    [SerializeField]
-    private InputField clientSearchField;
+        public void ConfirmAmmountChange()
+        {
+            if(model.AddItemToCurentOrder(ammountPopupInputField.text))
+            {
+                view.ToggleAmmountPrompt(false,0,0);
+                ammountPopupInputField.text = string.Empty;
+            }
+        }
 
-    [Header("History panel")]
-
-    [SerializeField]
-    private InputField historyClientSearchField;
-
-
-    [Header("Add new item panel")]
-
-    [SerializeField]
-    private InputField newItemNameField;
-    [SerializeField]
-    private InputField newItemPriceField;
-    [SerializeField]
-    private InputField newItemQuantityField;
-    [SerializeField]
-    private Slider newItemDiscountSlider;
-
+    #endregion
 
     #region Inventory panel actions
         public void SearchInventory()
         {
             //sort request to Model -> update request to View
+            model.SearchInventory(itemSearchField.text);
         }
 
         public void ConfirmNewItem()
         {
-            if(OrderModel.ItemExists(newItemNameField.text.ToLower()))
+            if (model.CompleteItemAdd(newItemNameField.text, newItemPriceField.text, newItemQuantityField.text, (int)newItemDiscountSlider.value))
             {
-                // view - toggle add item warning
+                addNewItemParent.SetActive(false); //<----- move to view
+                newItemNameField.text = string.Empty;
+                newItemPriceField.text = string.Empty;
+                newItemQuantityField.text = string.Empty;
+                newItemDiscountSlider.value = 0;
+                Debug.Log("Added item");
             }
-            else
-            {
-                model.CompleteItemAdd(newItemNameField.text, newItemPriceField.text, newItemQuantityField.text, (int)newItemDiscountSlider.value);
-            }
-            // string s = "sdfasd";
-            // string i = s.GetHashCode().ToString();
-
-            // if(s.CompareTo(i))
-            // {
-
-            // }
-
-            //add request to model -> update request to View
         }
 
         public void FinalizeOrder()
