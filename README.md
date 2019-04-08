@@ -28,20 +28,20 @@ EXTRA 3 : Ability to easily create sales for items. ( Requires some restructurin
 # Order manager:
 	The order manager allows the user to keep and edit stock items and outgoing orders containing said items. Data is saved in User\AppData\LocalLow\Exercises\Bogdan_Exercise_4
 
-#Design
+# Design
 	The application implements the MVC design structure:
-The model: OrderModel.cs manages data operations (searching, editing, addition, removal) and creates the objects that represent items, orders and order sheets.
-The controller: OrderController.cs handles most of the user inputs.
-The view: OrderView.cs toggles and updates UI elements.
+1. The model: OrderModel.cs manages data operations (searching, editing, addition, removal) and creates the objects that represent items,  orders and order sheets.
+2. The controller: OrderController.cs handles most of the user inputs.
+3. The view: OrderView.cs toggles and updates UI elements.
 
 # Data type:
 Permanent data is saved as json but when loaded into the application it is organised into a binary search tree for quick access. This data includes item data and order history.
 Temporary data such as outgoing orders is stored only at runtime within the application.
 
 #Additional notes
-SaveDatabaseHandler.cs is used to load/save and assign the main saved data sets (inventory items and order history).
-SaveDatabase.cs type has been created to neatly save a binary search tree into a serialized list.
-Objects: ItemObject.cs, OrderObject.cs and OrderSheetObject.cs handle their own UI and interactions as they are instantiated by the model.
-BinaryST.cs contains the binary search tree with associated lookup, addition, removal etc. functions. The search tree has been made with a flexible type and virtually any class be used as the node value.
-InventoryItem.cs and InventoryItemInstance.cs have been created in order to keep base item statistics and instance values such as quantity and discount value separate from their instances.
-Constants.cs contains commonly used strings
+- SaveDatabaseHandler.cs is used to load/save and assign the main saved data sets (inventory items and order history).
+- SaveDatabase.cs type has been created to neatly save a binary search tree into a serialized list.
+- Objects: ItemObject.cs, OrderObject.cs and OrderSheetObject.cs handle their own UI and interactions as they are instantiated by the model.
+- BinaryST.cs contains the binary search tree with associated lookup, addition, removal etc. functions. The search tree has been made with a flexible type and virtually any class be used as the node value.
+- InventoryItem.cs and InventoryItemInstance.cs have been created in order to keep base item statistics and instance values such as quantity and discount value separate from their instances.
+- Constants.cs contains commonly used strings
