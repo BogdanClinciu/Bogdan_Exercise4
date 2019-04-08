@@ -1,7 +1,8 @@
 # Bogdan_Exercise4
 # Description:
-            	Create an order management application. Using the UI, a user should be able to add new items to the inventory and place orders for customers.
-            	Adding items:
+            	
+Create an order management application. Using the UI, a user should be able to add new items to the inventory and place orders for customers.
+Adding items:
 ·         When making the selection to add an item, the user should be presented with a screen asking for an item name and quantity
 ·         If the item already exists, the new quantity is added to the existing one
 ·         If the item does not exist, a new entry is made for the item and its quantity
@@ -26,10 +27,10 @@ EXTRA 3 : Ability to easily create sales for items. ( Requires some restructurin
 
 
 # Order manager:
-	The order manager allows the user to keep and edit stock items and outgoing orders containing said items. Data is saved in User\AppData\LocalLow\Exercises\Bogdan_Exercise_4
+The order manager allows the user to keep and edit stock items and outgoing orders containing said items. Data is saved in User\AppData\LocalLow\Exercises\Bogdan_Exercise_4
 
 # Design
-	The application implements the MVC design structure:
+The application implements the MVC design structure:
 1. The model: OrderModel.cs manages data operations (searching, editing, addition, removal) and creates the objects that represent items,  orders and order sheets.
 2. The controller: OrderController.cs handles most of the user inputs.
 3. The view: OrderView.cs toggles and updates UI elements.
