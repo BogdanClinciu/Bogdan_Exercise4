@@ -5,6 +5,8 @@ using UnityEngine;
 public class OrderModel : MonoBehaviour
 {
     [SerializeField]
+    private OrderController controller;
+    [SerializeField]
     private OrderView view;
 
     #region ObjectPrefabs
@@ -29,7 +31,7 @@ public class OrderModel : MonoBehaviour
     #endregion
 
     #region Spawned item Parents and lists
-
+        [Header("Inventory/CurentOrder spawn parents")]
         #region Invenory and Outgoing
             [SerializeField]
             private RectTransform inventoryItemParent;
@@ -40,6 +42,7 @@ public class OrderModel : MonoBehaviour
             private List<ItemObject> spawnedItemObjectsInOrder;
         #endregion
 
+        [Header("Order history spawn parents")]
         #region OrderHistory
             [SerializeField]
             private RectTransform orderHistoryParent;
@@ -50,6 +53,7 @@ public class OrderModel : MonoBehaviour
             private List<ItemObject> spawnedHistoryItemObjects;
         #endregion
 
+        [Header("Outgoing orders spawn parents")]
         #region Outgoing orders
             [SerializeField]
             private RectTransform outgoingOrdersParent;
@@ -60,6 +64,7 @@ public class OrderModel : MonoBehaviour
             private List<ItemObject> spawnedOutgoingItemObjects;
         #endregion
 
+        [Header("OrderSheet spawn parents")]
         #region Order Sheets (placed orders)
             [SerializeField]
             private RectTransform orderSheetParent;
@@ -110,7 +115,7 @@ public class OrderModel : MonoBehaviour
     ///<summary>
     /// Returns item to add validity. On a succesfull validation the item will be added to the inventory, and the item database will be saved.
     ///</summary>
-    public bool CompleteNewItemAdd(string name, string basePrice, string quantity, int discount)
+    public bool ConfirmNewItemAdd(string name, string basePrice, string quantity, int discount)
     {
         if(inventory.ContainsId(name))
         {
@@ -133,6 +138,77 @@ public class OrderModel : MonoBehaviour
         SavedDatabaseHandler.SaveDatabase<InventoryItemInstance>(inventory.ToOrderedList());
         return true;
     }
+
+    ///<summary>
+    /// Validates the stock modification and saves the modified item. Returns false on invalid entry for price or quantity.
+    ///</summary>
+    public bool ConfirmStockEdit(string priceString, string ammountString, int discount)
+    {
+        float price = 0f;
+        float.TryParse(priceString, out price);
+        int ammount = -1;
+        int.TryParse(ammountString, out ammount);
+
+        if (price < 1 || ammount < 0)
+        {
+            return false;
+        }
+
+        InventoryItemInstance item = inventory.GetNodeAt(changeAmmountTargetItem.Item.ID).NodeValue;
+
+        item.Item.BasePrice = price;
+        item.Quantity = ammount;
+        item.discount = discount;
+
+        //save the database
+        SavedDatabaseHandler.SaveDatabase<InventoryItemInstance>(inventory.ToOrderedList());
+        SearchInventory(null);
+        return true;
+    }
+
+    ///<summary>
+    /// Cleares the change ammount target
+    ///</summary>
+    public void CancelItemEdit()
+    {
+        changeAmmountTargetItem = null;
+    }
+
+    ///<summary>
+    /// Tries to parse the <paramref name="ammountString"/>, validates the parsed ammount and if valid adds the item to the curent order.
+    /// Returns false when parsing failed or the value is invalid.
+    ///</summary>
+    public bool ConfirmAddItemToCurentOrder(string ammountString)
+    {
+        int ammount = 1;
+        if(!int.TryParse(ammountString, out ammount))
+        {
+            view.ToggleAmmountPopupWarning(true);
+            return false;
+        }
+
+        if(ammount > MaxStockQuantity(changeAmmountTargetItem) || ammount < 1)
+        {
+            view.ToggleAmmountPopupWarning(true);
+            return false;
+        }
+
+        if(!itemsInCurentOrder.Exists(a => a.Item.ID == changeAmmountTargetItem.Item.ID))
+        {
+            InventoryItemInstance newItemInstance = new InventoryItemInstance(changeAmmountTargetItem);
+            newItemInstance.Quantity = ammount;
+            itemsInCurentOrder.Add(newItemInstance);
+        }
+        else
+        {
+            itemsInCurentOrder.Find(i => i.Item.ID == changeAmmountTargetItem.Item.ID).Quantity += ammount;
+        }
+
+        UpdateItemObjects(Constants.ItemInteraction.RemoveFromCart, currentOrderItemParent, itemsInCurentOrder, spawnedItemObjectsInOrder, true);
+        changeAmmountTargetItem = null;
+        return true;
+    }
+
 
     #region Order finalization and placement logic
 
@@ -319,6 +395,7 @@ public class OrderModel : MonoBehaviour
 
     #endregion
 
+    //Private from here
     #region Object update/creation functions
 
         ///<summary>
@@ -487,41 +564,6 @@ public class OrderModel : MonoBehaviour
     #region Item object actions
 
         ///<summary>
-        /// Tries to parse the <paramref name="ammountString"/>, validates the parsed ammount and if valid adds the item to the curent order.
-        /// Returns false when parsing failed or the value is invalid.
-        ///</summary>
-        public bool ConfirmAddItemToCurentOrder(string ammountString)
-        {
-            int ammount = 1;
-            if(!int.TryParse(ammountString, out ammount))
-            {
-                view.ToggleAmmountPopupWarning(true);
-                return false;
-            }
-
-            if(ammount > MaxStockQuantity(changeAmmountTargetItem) || ammount < 1)
-            {
-                view.ToggleAmmountPopupWarning(true);
-                return false;
-            }
-
-            if(!itemsInCurentOrder.Exists(a => a.Item.ID == changeAmmountTargetItem.Item.ID))
-            {
-                InventoryItemInstance newItemInstance = new InventoryItemInstance(changeAmmountTargetItem);
-                newItemInstance.Quantity = ammount;
-                itemsInCurentOrder.Add(newItemInstance);
-            }
-            else
-            {
-                itemsInCurentOrder.Find(i => i.Item.ID == changeAmmountTargetItem.Item.ID).Quantity += ammount;
-            }
-
-            UpdateItemObjects(Constants.ItemInteraction.RemoveFromCart, currentOrderItemParent, itemsInCurentOrder, spawnedItemObjectsInOrder, true);
-            changeAmmountTargetItem = null;
-            return true;
-        }
-
-        ///<summary>
         /// Item object possible click actions.
         ///</summary>
         private void ItemButtonAction(InventoryItemInstance instance, Constants.ItemInteraction interaction)
@@ -571,11 +613,12 @@ public class OrderModel : MonoBehaviour
         }
 
         ///<summary>
-        /// A button function of an item object, asigned at ItemObject instantiate.
+        /// Opens the stock edit menu.
         ///</summary>
         private void OpenStockEditPanel(InventoryItemInstance instanceToEdit)
         {
-            Debug.Log("Double click on: " + instanceToEdit.Item.Name);
+            changeAmmountTargetItem = instanceToEdit;
+            controller.OpenItemEditPanel(instanceToEdit);
         }
 
     #endregion

@@ -15,7 +15,7 @@ public class InventoryItemInstance
         }
         set
         {
-            discount = Mathf.Clamp(value, 0, 100);
+            discount = Mathf.Clamp(value, 0, 90);
         }
     }
     public float DiscountedPrice

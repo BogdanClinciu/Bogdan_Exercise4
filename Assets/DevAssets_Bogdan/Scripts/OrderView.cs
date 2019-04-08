@@ -5,33 +5,39 @@ using UnityEngine.Events;
 
 public class OrderView : MonoBehaviour
 {
+    [Header("Panel parents")]
+    [SerializeField]
+    private GameObject outgoingOrdersPanel;
+    [SerializeField]
+    private GameObject orderHistoryPanel;
+    [SerializeField]
+    private GameObject addNewItemParent;
+    [SerializeField]
+    private GameObject editItemParent;
+    [SerializeField]
+    private GameObject placeOutgoingOrdersPanel;
 
-
+    [Header("Warning texts")]
     [SerializeField]
     private GameObject addItemWarning;
-
     [SerializeField]
-    private GameObject ammountPromptParent;
+    private GameObject editItemWarning;
+    [SerializeField]
+    private GameObject finalizeOrderWarning;
+
+    [Header("Ammount panel ui")]
+    [SerializeField]
+    private GameObject ammountPpopupParent;
     [SerializeField]
     private Text ammountPromptMaxText;
     [SerializeField]
     private GameObject ammountPromptWarningText;
 
-    [SerializeField]
-    private GameObject outgoingOrdersPanel;
-    [SerializeField]
-    private GameObject orderHistoryPanel;
-
-    [SerializeField]
-    private GameObject finalizeOrderWarning;
-
-    [SerializeField]
-    private GameObject placeOutgoingOrdersPanel;
+    [Header("UI rebuild rects")]
     [SerializeField]
     private RectTransform placeOutgoingContentsRect;
 
-    [SerializeField]
-    private GameObject addNewItemParent;
+
 
 
 
@@ -53,7 +59,6 @@ public class OrderView : MonoBehaviour
         outgoingOrdersPanel.SetActive(false);
     }
 
-
     public void ToggleAddItemWarning(bool show)
     {
         addItemWarning.SetActive(show);
@@ -61,7 +66,7 @@ public class OrderView : MonoBehaviour
 
     public void ToggleAmmountPopup(bool show, int maxAmmount, int cartAmmount)
     {
-        ammountPromptParent.SetActive(show);
+        ammountPpopupParent.SetActive(show);
         ammountPromptMaxText.text =
             Constants.AMMOUNT_INSTOCK_PREFIX + Constants.NEWLINE + maxAmmount + Constants.NEWLINE +
             Constants.AMMOUNT_INCART_PREFIX + Constants.NEWLINE + cartAmmount;
@@ -94,5 +99,16 @@ public class OrderView : MonoBehaviour
     public void ToggleAddItemPanel(bool show)
     {
         addNewItemParent.SetActive(show);
+    }
+
+    public void ToggleEditItemPanel(bool show)
+    {
+        ToggleEditItemWarning(false);
+        editItemParent.SetActive(show);
+    }
+
+    public void ToggleEditItemWarning(bool show)
+    {
+        editItemWarning.SetActive(show);
     }
 }

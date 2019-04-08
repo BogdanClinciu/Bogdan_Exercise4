@@ -35,6 +35,15 @@ public class OrderController : MonoBehaviour
     private InputField ammountPopupInputField;
 
 
+    [Header("Edit item panel")]
+    [SerializeField]
+    private Text editItemNameField;
+    [SerializeField]
+    private InputField editItemPriceField;
+    [SerializeField]
+    private InputField editItemQuantityField;
+    [SerializeField]
+    private Slider editItemDiscountSlider;
 
     ///<summary>
     /// Confirms the ammount to add to the curent order of the selected item.
@@ -65,7 +74,7 @@ public class OrderController : MonoBehaviour
     ///</summary>
     public void ConfirmNewItem()
     {
-        if (model.CompleteNewItemAdd(newItemNameField.text, newItemPriceField.text, newItemQuantityField.text, (int)newItemDiscountSlider.value))
+        if (model.ConfirmNewItemAdd(newItemNameField.text, newItemPriceField.text, newItemQuantityField.text, (int)newItemDiscountSlider.value))
         {
             view.ToggleAddItemPanel(true);
             newItemNameField.text = string.Empty;
@@ -120,4 +129,39 @@ public class OrderController : MonoBehaviour
     {
         model.SearchOrderHistory(historyClientSearchField.text);
     }
+
+
+    ///<summary>
+    /// Opens the item edit panel.
+    ///</summary>
+    public void OpenItemEditPanel(InventoryItemInstance instanceToEdit)
+    {
+        view.ToggleEditItemPanel(true);
+        editItemNameField.text = instanceToEdit.Item.Name;
+        editItemPriceField.text = Constants.CURENCY_SYMBOL + instanceToEdit.Item.BasePrice.ToString(Constants.CURENCY_FORMAT);
+        editItemQuantityField.text = instanceToEdit.Quantity.ToString();
+        editItemDiscountSlider.value = instanceToEdit.discount;
+    }
+
+    ///<summary>
+    /// Opens the item edit panel.
+    ///</summary>
+    public void ConfirmItemEdit()
+    {
+        if(model.ConfirmStockEdit(editItemPriceField.text, editItemQuantityField.text, (int)editItemDiscountSlider.value))
+        {
+            view.ToggleEditItemPanel(false);
+        }
+        else
+        {
+            view.ToggleEditItemWarning(true);
+        }
+    }
+
+    public void CancelItemEdit()
+    {
+        model.CancelItemEdit();
+        view.ToggleEditItemPanel(false);
+    }
+
 }
