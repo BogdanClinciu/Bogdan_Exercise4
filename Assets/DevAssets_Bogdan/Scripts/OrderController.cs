@@ -10,133 +10,114 @@ public class OrderController : MonoBehaviour
     [SerializeField]
     private OrderView view;
 
-    #region Inventory panel inputs
+    [Header("Inventory panel input")]
+    [SerializeField]
+    private InputField itemSearchField;
+    [SerializeField]
+    private InputField clientNameField;
 
-        [Header("Inventory panel")]
+    [Header("History panel")]
+    [SerializeField]
+    private InputField historyClientSearchField;
 
-        [SerializeField]
-        private InputField itemSearchField;
-        [SerializeField]
-        private InputField clientNameField;
+    [Header("Add new item panel")]
+    [SerializeField]
+    private InputField newItemNameField;
+    [SerializeField]
+    private InputField newItemPriceField;
+    [SerializeField]
+    private InputField newItemQuantityField;
+    [SerializeField]
+    private Slider newItemDiscountSlider;
 
-    #endregion
+    [Header("Ammount popup panel")]
+    [SerializeField]
+    private InputField ammountPopupInputField;
 
-    #region Orfer panel inputs
 
-        [Header("Orders panel")]
 
-        [SerializeField]
-        private InputField clientSearchField;
-
-    #endregion
-
-    #region History panel inputs
-
-        [Header("History panel")]
-
-        [SerializeField]
-        private InputField historyClientSearchField;
-
-    #endregion
-
-    #region New/edit item inputs
-
-        [Header("Add new item panel")]
-
-        [SerializeField]
-        private GameObject addNewItemParent;
-
-        [SerializeField]
-        private InputField newItemNameField;
-        [SerializeField]
-        private InputField newItemPriceField;
-        [SerializeField]
-        private InputField newItemQuantityField;
-        [SerializeField]
-        private Slider newItemDiscountSlider;
-
-    #endregion
-
-    #region Ammount popup inputs
-
-        [SerializeField]
-        private InputField ammountPopupInputField;
-
-    #endregion
-
-    #region AmmountPopupLogic
-
-        public void ConfirmAmmountChange()
+    ///<summary>
+    /// Confirms the ammount to add to the curent order of the selected item.
+    /// Triggered from the confirm button of the ammount popup panel
+    ///</summary>
+    public void ConfirmAmmountToAdd()
+    {
+        if(model.ConfirmAddItemToCurentOrder(ammountPopupInputField.text))
         {
-            if(model.ConfirmAddItemToCurentOrder(ammountPopupInputField.text))
-            {
-                view.ToggleAmmountPopup(false,0,0);
-                ammountPopupInputField.text = string.Empty;
-            }
+            view.ToggleAmmountPopup(false,0,0);
+            ammountPopupInputField.text = string.Empty;
         }
+    }
 
-    #endregion
+    ///<summary>
+    /// Triggers a search for items matching the item search field's contents.
+    /// Triggered from the search button of the inventory item panel's search button
+    ///</summary>
+    public void SearchInventory()
+    {
+        //sort request to Model -> update request to View
+        model.SearchInventory(itemSearchField.text);
+    }
 
-    #region Inventory panel actions
-
-
-        public void SearchInventory()
+    ///<summary>
+    /// Triggers the model to validate the new item and add it to the curent stock with the desired input parameters.
+    /// Triggered from the confirm button of the add item panel. Also clears inputs on success.
+    ///</summary>
+    public void ConfirmNewItem()
+    {
+        if (model.CompleteNewItemAdd(newItemNameField.text, newItemPriceField.text, newItemQuantityField.text, (int)newItemDiscountSlider.value))
         {
-            //sort request to Model -> update request to View
-            model.SearchInventory(itemSearchField.text);
+            view.ToggleAddItemPanel(true);
+            newItemNameField.text = string.Empty;
+            newItemPriceField.text = string.Empty;
+            newItemQuantityField.text = string.Empty;
+            newItemDiscountSlider.value = 0;
+            Debug.Log("Added item");
         }
+    }
 
-        public void ConfirmNewItem()
-        {
-            if (model.CompleteNewItemAdd(newItemNameField.text, newItemPriceField.text, newItemQuantityField.text, (int)newItemDiscountSlider.value))
-            {
-                addNewItemParent.SetActive(false); //<----- move to view
-                newItemNameField.text = string.Empty;
-                newItemPriceField.text = string.Empty;
-                newItemQuantityField.text = string.Empty;
-                newItemDiscountSlider.value = 0;
-                Debug.Log("Added item");
-            }
-        }
+    ///<summary>
+    /// Triggers the finalize order action on both the view and the model using the model to validate input.
+    ///</summary>
+    public void FinalizeOrder()
+    {
+        view.FinalizeOrderAction(model.ConfirmFinalizeOrder(clientNameField.text));
+        clientNameField.text = string.Empty;
+    }
 
-        public void FinalizeOrder()
-        {
-            view.FinalizeOrderAction(model.ConfirmFinalizeOrder(clientNameField.text));
-            clientNameField.text = string.Empty;
-        }
+    ///<summary>
+    /// Triggers the model to clear the curent order an return items to the stock
+    ///</summary>
+    public void ClearCurentOrder()
+    {
+        model.ClearCurentOrderPanel();
+        clientNameField.text = string.Empty;
+    }
 
-        public void ClearCurentOrder()
-        {
-            model.ClearCurentOrderPanel();
-            clientNameField.text = string.Empty;
-        }
+    ///<summary>
+    /// Triggers the first faze of placing all orders
+    /// toggles the place orders panel and propms the model to create a sheet object for each outgoing order.
+    ///</summary>
+    public void PlaceAllOutgoingOrders()
+    {
+        view.TogglePlaceOrdersPanel(model.BeginPlaceOutgoingOrders());
+    }
 
-    #endregion
+    ///<summary>
+    /// Triggers placing(finishing) of all outgoing orders using the model to validate input.
+    ///</summary>
+    public void FinishPlaceAllOutgoingOrders()
+    {
+        model.ConfirmPlaceOutgoingOrders();
+        view.TogglePlaceOrdersPanel(false);
+    }
 
-    #region Orders panel actions
-
-        public void PlaceAllOutgoingOrders()
-        {
-            view.TogglePlaceOrdersPanel(model.BeginPlaceOutgoingOrders());
-        }
-
-        public void FinishPlaceAllOutgoingOrders()
-        {
-            model.ConfirmPlaceOutgoingOrders();
-            view.TogglePlaceOrdersPanel(false);
-        }
-
-    #endregion
-
-    #region History panel actions
-
-        public void SearchOrdersHistory()
-        {
-            model.SearchOrderHistory(historyClientSearchField.text);
-        }
-
-    #endregion
-
-
-
+    ///<summary>
+    /// Triggers a search for orders matching the order history search field's contents.
+    /// Triggered from the search button of the history panel's search button
+    ///</summary>
+    public void SearchOrdersHistory()
+    {
+        model.SearchOrderHistory(historyClientSearchField.text);
+    }
 }

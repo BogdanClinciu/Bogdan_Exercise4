@@ -1737,9 +1737,7 @@ MonoBehaviour:
   view: {fileID: 0}
   itemSearchField: {fileID: 0}
   clientNameField: {fileID: 0}
-  clientSearchField: {fileID: 0}
   historyClientSearchField: {fileID: 0}
-  addNewItemParent: {fileID: 0}
   newItemNameField: {fileID: 0}
   newItemPriceField: {fileID: 0}
   newItemQuantityField: {fileID: 0}
@@ -3875,8 +3873,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2013960467}
   m_HandleRect: {fileID: 2013960465}
   m_Direction: 2
-  m_Value: 0
-  m_Size: 0.99999994
+  m_Value: 1
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -5285,9 +5283,7 @@ MonoBehaviour:
   view: {fileID: 1139903301}
   itemSearchField: {fileID: 1715471045}
   clientNameField: {fileID: 1513881276}
-  clientSearchField: {fileID: 0}
   historyClientSearchField: {fileID: 22163775}
-  addNewItemParent: {fileID: 470827653}
   newItemNameField: {fileID: 203638945}
   newItemPriceField: {fileID: 913304426}
   newItemQuantityField: {fileID: 2105712508}
@@ -6286,6 +6282,7 @@ MonoBehaviour:
   finalizeOrderWarning: {fileID: 1872375623}
   placeOutgoingOrdersPanel: {fileID: 142356672}
   placeOutgoingContentsRect: {fileID: 1425743974}
+  addNewItemParent: {fileID: 470827653}
 --- !u!1 &1171438316
 GameObject:
   m_ObjectHideFlags: 0
@@ -6810,7 +6807,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000030517578}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1369037254
@@ -8346,7 +8343,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 928054243}
-        m_MethodName: ConfirmAmmountChange
+        m_MethodName: ConfirmAmmountToAdd
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -9860,11 +9857,11 @@ MonoBehaviour:
     type: 3}
   inventoryItemParent: {fileID: 520114057}
   currentOrderItemParent: {fileID: 1369037253}
-  outgoingOrdersParent: {fileID: 1698422247}
-  placedOrdersParent: {fileID: 1425743974}
-  outgoingOrdersItemParent: {fileID: 1454970632}
-  orderHistoryItemPanel: {fileID: 300386356}
   orderHistoryParent: {fileID: 1040643219}
+  orderHistoryItemPanel: {fileID: 300386356}
+  outgoingOrdersParent: {fileID: 1698422247}
+  outgoingOrdersItemParent: {fileID: 1454970632}
+  orderSheetParent: {fileID: 1425743974}
 --- !u!1 &1698422246
 GameObject:
   m_ObjectHideFlags: 0

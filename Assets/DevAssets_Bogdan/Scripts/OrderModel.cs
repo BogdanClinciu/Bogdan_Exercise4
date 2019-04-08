@@ -8,6 +8,8 @@ public class OrderModel : MonoBehaviour
     private OrderView view;
 
     #region ObjectPrefabs
+        [Header("Object prefabs")]
+
         [SerializeField]
         private GameObject itemObjectPrefab;
         [SerializeField]
@@ -17,45 +19,55 @@ public class OrderModel : MonoBehaviour
     #endregion
 
     #region Data sets
+
         private BinaryST<InventoryItemInstance> inventory;
         private BinaryST<Order> orderHistory;
 
         private List<InventoryItemInstance> itemsInCurentOrder;
         private List<Order> outgoingOrders;
+
     #endregion
 
+    #region Spawned item Parents and lists
 
-    #region Spawned item Parents and lists (consider changing to dict)
-        [SerializeField]
-        private RectTransform inventoryItemParent;
-        [SerializeField]
-        private RectTransform currentOrderItemParent;
-        [SerializeField]
-        private RectTransform outgoingOrdersParent;
+        #region Invenory and Outgoing
+            [SerializeField]
+            private RectTransform inventoryItemParent;
+            [SerializeField]
+            private RectTransform currentOrderItemParent;
 
+            private List<ItemObject> spawnedInventoryItemObjects;
+            private List<ItemObject> spawnedItemObjectsInOrder;
+        #endregion
 
-        [SerializeField]
-        private RectTransform placedOrdersParent;
+        #region OrderHistory
+            [SerializeField]
+            private RectTransform orderHistoryParent;
+            [SerializeField]
+            private RectTransform orderHistoryItemPanel;
 
+            private List<OrderObject> spawnedOrderHistoryObjects;
+            private List<ItemObject> spawnedHistoryItemObjects;
+        #endregion
 
-        [SerializeField]
-        private RectTransform outgoingOrdersItemParent;
-        [SerializeField]
-        private RectTransform orderHistoryItemPanel;
-        [SerializeField]
-        private RectTransform orderHistoryParent;
+        #region Outgoing orders
+            [SerializeField]
+            private RectTransform outgoingOrdersParent;
+            [SerializeField]
+            private RectTransform outgoingOrdersItemParent;
 
+            private List<OrderObject> spawnedOutgoingOrderObjects;
+            private List<ItemObject> spawnedOutgoingItemObjects;
+        #endregion
 
-        private List<ItemObject> spawnedItemObjects;
-        private List<ItemObject> spawnedItemObjectsInOrder;
-        private List<OrderObject> spawnedOutgoingOrderObjects;
-        private List<OrderObject> spawnedOrderHistoryObjects;
+        #region Order Sheets (placed orders)
+            [SerializeField]
+            private RectTransform orderSheetParent;
 
-        private List<ItemObject> spawnedOutgoingItemObjects;
-        private List<ItemObject> spawnedHistoryItemObjects;
-        private List<OrderSheetObject> spawnedOrderSheets;
+            private List<OrderSheetObject> spawnedOrderSheets;
+        #endregion
+
     #endregion
-
 
     private InventoryItemInstance changeAmmountTargetItem;
 
@@ -63,9 +75,9 @@ public class OrderModel : MonoBehaviour
 
     private void Start()
     {
-        #region Initializations
+        #region Data structure initializations
             spawnedItemObjectsInOrder = new List<ItemObject>();
-            spawnedItemObjects = new List<ItemObject>();
+            spawnedInventoryItemObjects = new List<ItemObject>();
             spawnedOutgoingOrderObjects = new List<OrderObject>();
             spawnedOutgoingItemObjects = new List<ItemObject>();
             spawnedHistoryItemObjects = new List<ItemObject>();
@@ -83,6 +95,9 @@ public class OrderModel : MonoBehaviour
         SearchOrderHistory(null);
     }
 
+    ///<summary>
+    /// Clears all items from the curent order.
+    ///</summary>
     public void ClearCurentOrderPanel()
     {
         foreach (ItemObject item in spawnedItemObjectsInOrder)
@@ -92,7 +107,39 @@ public class OrderModel : MonoBehaviour
         spawnedItemObjectsInOrder.Clear();
     }
 
-    public bool BeginPlaceOutgoingOrders()
+    ///<summary>
+    /// Returns item to add validity. On a succesfull validation the item will be added to the inventory, and the item database will be saved.
+    ///</summary>
+    public bool CompleteNewItemAdd(string name, string basePrice, string quantity, int discount)
+    {
+        if(inventory.ContainsId(name))
+        {
+            view.ToggleAddItemWarning(true);
+            return false;
+        }
+
+        int quant = 0;
+        int.TryParse(quantity, out quant);
+        float price = 1.0f;
+        float.TryParse(basePrice, out price);
+
+        InventoryItem itemBase = new InventoryItem(name, price);
+        InventoryItemInstance itemInstance = new InventoryItemInstance(quant, discount, itemBase);
+
+        inventory.Add(new Node<InventoryItemInstance>(itemInstance, itemBase.ID));
+        // view -> update inventory items
+        SearchInventory(null);
+
+        SavedDatabaseHandler.SaveDatabase<InventoryItemInstance>(inventory.ToOrderedList());
+        return true;
+    }
+
+    #region Order finalization and placement logic
+
+        ///<summary>
+        /// Validates outgoing orders and on success creates sheet objects for each order.
+        ///</summary>
+        public bool BeginPlaceOutgoingOrders()
     {
         if(outgoingOrders.Count < 1)
         {
@@ -110,10 +157,10 @@ public class OrderModel : MonoBehaviour
         //populate the place orders panel
         foreach (Order order in outgoingOrders)
         {
-            OrderSheetObject newOrderSheet = Instantiate(orderSheetObjectPrefab, placedOrdersParent).GetComponent<OrderSheetObject>();
+            OrderSheetObject newOrderSheet = Instantiate(orderSheetObjectPrefab, orderSheetParent).GetComponent<OrderSheetObject>();
             newOrderSheet.UpdateOrderSheetItem(order);
             RectTransform newOrderSheetParent = newOrderSheet.GetComponent<RectTransform>();
-            CreateItemObjects(
+            UpdateItemObjects(
                 Constants.ItemInteraction.NoInteraction,
                 newOrderSheetParent,
                 order.Items,
@@ -127,33 +174,38 @@ public class OrderModel : MonoBehaviour
         return true;
     }
 
-    public void ConfirmPlaceOutgoingOrders()
-    {
-        foreach (Order order in outgoingOrders)
+        ///<summary>
+        /// Adds the finalized outgoing orders to history and deletes the sheet objects creared to show them.
+        // Also triggeres save request for both stock values and order history.
+        ///</summary>
+        public void ConfirmPlaceOutgoingOrders()
         {
-            orderHistory.Add(new Node<Order>(order, order.ClientName.ToLower()));
+            foreach (Order order in outgoingOrders)
+            {
+                orderHistory.Add(new Node<Order>(order, order.ClientName.ToLower()));
+            }
+
+            //add outgoing to history
+            //clear the outgoing list
+            outgoingOrders.Clear();
+            UpdateOrderObjects(false, outgoingOrdersParent, outgoingOrders, spawnedOutgoingOrderObjects, true, false);
+
+            //destroy placed orders from placed panel
+            foreach (OrderSheetObject sheet in spawnedOrderSheets)
+            {
+                Destroy(sheet.gameObject);
+            }
+            spawnedOrderSheets.Clear();
+
+            //Save the updated inventory database and order history
+            SavedDatabaseHandler.SaveDatabase<InventoryItemInstance>(inventory.ToOrderedList());
+            SavedDatabaseHandler.SaveDatabase<Order>(orderHistory.ToOrderedList());
+            SearchOrderHistory(null);
         }
 
-        //add outgoing to history
-        //clear the outgoing list
-        outgoingOrders.Clear();
-        CreateOrderObjects(false, outgoingOrdersParent, outgoingOrders, spawnedOutgoingOrderObjects, true, false);
-
-        //destroy placed orders from placed panel
-        foreach (OrderSheetObject sheet in spawnedOrderSheets)
-        {
-            Destroy(sheet.gameObject);
-        }
-        spawnedOrderSheets.Clear();
-
-        //Save the updated inventory database and order history
-        SavedDatabaseHandler.SaveDatabase<InventoryItemInstance>(inventory.ToOrderedList());
-        SavedDatabaseHandler.SaveDatabase<Order>(orderHistory.ToOrderedList());
-        SearchOrderHistory(null);
-    }
-
-    #region Finalize order logic
-
+        ///<summary>
+        /// Returns validity of the given <paramref name= "clientName"/> and if valid adds the curent order to the outgoing orders list.
+        ///</summary>
         public bool ConfirmFinalizeOrder(string clientName)
         {
             if(string.IsNullOrEmpty(clientName))
@@ -180,12 +232,12 @@ public class OrderModel : MonoBehaviour
                         existingOrder.Items.Add(new InventoryItemInstance(item));
                     }
                 }
-                CreateOrderObjects(true, outgoingOrdersParent, outgoingOrders, spawnedOutgoingOrderObjects, true, false);
+                UpdateOrderObjects(true, outgoingOrdersParent, outgoingOrders, spawnedOutgoingOrderObjects, true, false);
             }
             else
             {
                 outgoingOrders.Add(new Order(clientName.ToLower(), clientName, new List<InventoryItemInstance>(itemsInCurentOrder)));
-                CreateOrderObjects(true, outgoingOrdersParent, outgoingOrders, spawnedOutgoingOrderObjects, true, false);
+                UpdateOrderObjects(true, outgoingOrdersParent, outgoingOrders, spawnedOutgoingOrderObjects, true, false);
             }
 
             //remove item quantities from stock
@@ -198,103 +250,87 @@ public class OrderModel : MonoBehaviour
 
             //clear curent order
             itemsInCurentOrder.Clear();
-            CreateItemObjects(Constants.ItemInteraction.NoInteraction, currentOrderItemParent, itemsInCurentOrder, spawnedItemObjectsInOrder, true);
+            UpdateItemObjects(Constants.ItemInteraction.NoInteraction, currentOrderItemParent, itemsInCurentOrder, spawnedItemObjectsInOrder, true);
             return true;
         }
 
     #endregion
 
-    public bool CompleteNewItemAdd(string name, string basePrice, string quantity, int discount)
-    {
-        if(inventory.ContainsId(name))
+    #region Search functions
+
+        ///<summary>
+        /// Searches the item inventory for the requested item query, if the query string matches an id exactly it will insead return the item matching that id.
+        ///</summary>
+        public void SearchInventory(string searchQuery)
         {
-            view.ToggleAddItemWarning(true);
-            return false;
-        }
+            List<InventoryItemInstance> searchResults = new List<InventoryItemInstance>();
+            //get results from bst -> request update in view
 
-        int quant = 0;
-        int.TryParse(quantity, out quant);
-        float price = 1.0f;
-        float.TryParse(basePrice, out price);
-
-        InventoryItem itemBase = new InventoryItem(name, price);
-        InventoryItemInstance itemInstance = new InventoryItemInstance(quant, discount, itemBase);
-
-        inventory.Add(new Node<InventoryItemInstance>(itemInstance, itemBase.ID));
-        // view -> update inventory items
-        SearchInventory(null);
-
-        SavedDatabaseHandler.SaveDatabase<InventoryItemInstance>(inventory.ToOrderedList());
-        return true;
-    }
-
-    ///<summary>
-    /// Searches the item inventory for the requested item query, if the query string matches an id exactly it will insead return the item matching that id.
-    ///</summary>
-    public void SearchInventory(string searchQuery)
-    {
-        List<InventoryItemInstance> searchResults = new List<InventoryItemInstance>();
-        //get results from bst -> request update in view
-
-        //find all items with matching name
-        if(!string.IsNullOrEmpty(searchQuery))
-        {
-            if(inventory.ContainsId(searchQuery.ToLower()))
+            //find all items with matching name
+            if(!string.IsNullOrEmpty(searchQuery))
             {
-                searchResults.Add(inventory.GetNodeAt(searchQuery.ToLower()).NodeValue);
-                CreateItemObjects(Constants.ItemInteraction.AddToCart, inventoryItemParent, searchResults, spawnedItemObjects, false);
+                if(inventory.ContainsId(searchQuery.ToLower()))
+                {
+                    searchResults.Add(inventory.GetNodeAt(searchQuery.ToLower()).NodeValue);
+                    UpdateItemObjects(Constants.ItemInteraction.AddToCart, inventoryItemParent, searchResults, spawnedInventoryItemObjects, false);
+                    return;
+                }
+
+                //display items matching
+                searchResults = inventory.All(item => item.id.ToLower().StartsWith(searchQuery.ToLower()));
+                UpdateItemObjects(Constants.ItemInteraction.AddToCart, inventoryItemParent, searchResults, spawnedInventoryItemObjects, false);
                 return;
             }
 
-            //display items matching
-            searchResults = inventory.All(item => item.id.ToLower().StartsWith(searchQuery.ToLower()));
-            CreateItemObjects(Constants.ItemInteraction.AddToCart, inventoryItemParent, searchResults, spawnedItemObjects, false);
-            return;
+            //display all items
+            searchResults = inventory.ToOrderedList();
+            UpdateItemObjects(Constants.ItemInteraction.AddToCart, inventoryItemParent, searchResults, spawnedInventoryItemObjects, false);
+
         }
 
-        //display all items
-        searchResults = inventory.ToOrderedList();
-        CreateItemObjects(Constants.ItemInteraction.AddToCart, inventoryItemParent, searchResults, spawnedItemObjects, false);
-
-    }
-
-    ///<summary>
-    /// Searches the order history for the requested client query, if the query string matches an id exactly it will insead return the order matching that id.
-    ///</summary>
-    public void SearchOrderHistory(string searchQuery)
-    {
-        List<Order> searchResults = new List<Order>();
-        //get results from bst -> request update in view
-
-        //find all items with matching name
-        if(!string.IsNullOrEmpty(searchQuery))
+        ///<summary>
+        /// Searches the order history for the requested client query, if the query string matches an id exactly it will insead return the order matching that id.
+        ///</summary>
+        public void SearchOrderHistory(string searchQuery)
         {
-            if(orderHistory.ContainsId(searchQuery.ToLower()))
+            List<Order> searchResults = new List<Order>();
+            //get results from bst -> request update in view
+
+            //find all items with matching name
+            if(!string.IsNullOrEmpty(searchQuery))
             {
-                searchResults.Add(orderHistory.GetNodeAt(searchQuery.ToLower()).NodeValue);
-                CreateOrderObjects(false, orderHistoryParent, searchResults, spawnedOrderHistoryObjects, false, true);
+                if(orderHistory.ContainsId(searchQuery.ToLower()))
+                {
+                    searchResults.Add(orderHistory.GetNodeAt(searchQuery.ToLower()).NodeValue);
+                    UpdateOrderObjects(false, orderHistoryParent, searchResults, spawnedOrderHistoryObjects, false, true);
+                    return;
+                }
+
+                //display items matching
+                searchResults = orderHistory.All(item => item.id.ToLower().StartsWith(searchQuery.ToLower()));
+                UpdateOrderObjects(false, orderHistoryParent, searchResults, spawnedOrderHistoryObjects, false, true);
                 return;
             }
 
-            //display items matching
-            searchResults = orderHistory.All(item => item.id.ToLower().StartsWith(searchQuery.ToLower()));
-            CreateOrderObjects(false, orderHistoryParent, searchResults, spawnedOrderHistoryObjects, false, true);
-            return;
+            //display all items
+            searchResults = orderHistory.ToOrderedList();
+            UpdateOrderObjects(false, orderHistoryParent, searchResults, spawnedOrderHistoryObjects, false, true);
         }
 
-        //display all items
-        searchResults = orderHistory.ToOrderedList();
-        CreateOrderObjects(false, orderHistoryParent, searchResults, spawnedOrderHistoryObjects, false, true);
-    }
+    #endregion
 
-    // TODO: Move to view
-    #region Object update and creation functions
+    #region Object update/creation functions
 
         ///<summary>
         /// Creates the item objects from the given <paramref name="itemList"/> if they do not already exist in the provided <paramref name="spawnedList"/>, and disables ones that are not present.
-        /// Objects are instantiated into the apropriate <paramref name="parentTransform"/>, and the <paramref name="interaction"/> enum determines the possible functions of that object.
+        /// Objects are instantiated into the apropriate <paramref name="parentTransform"/>, and the <paramref name="interaction"/> enum determines the possible functions of the updated objects.
         ///</summary>
-        private void CreateItemObjects(Constants.ItemInteraction interaction, RectTransform parentTransform, List<InventoryItemInstance> itemList, List<ItemObject> spawnedList, bool destroyObjects)
+        private void UpdateItemObjects(
+            Constants.ItemInteraction interaction,
+            RectTransform parentTransform,
+            List<InventoryItemInstance> itemList,
+            List<ItemObject> spawnedList,
+            bool destroyObjects)
         {
             if(spawnedList != null)
             {
@@ -339,7 +375,17 @@ public class OrderModel : MonoBehaviour
             }
         }
 
-        private void CreateOrderObjects(bool canEdit, RectTransform parentTransform, List<Order> orderList, List<OrderObject> spawnedList, bool destroyObjects, bool isHistory)
+        ///<summary>
+        /// Creates the order objects from the given <paramref name="orderList"/> if they do not already exist in the provided <paramref name="spawnedList"/>, and disables ones that are not present.
+        /// Objects are instantiated into the apropriate <paramref name="parentTransform"/>, and the <paramref name="canEdit"/> bool determines the presence of a remove function for the updated objects.
+        ///</summary>
+        private void UpdateOrderObjects(
+            bool canEdit,
+            RectTransform parentTransform,
+            List<Order> orderList,
+            List<OrderObject> spawnedList,
+            bool destroyObjects,
+            bool isHistory)
         {
             foreach (OrderObject orderObject in spawnedList)
             {
@@ -378,7 +424,7 @@ public class OrderModel : MonoBehaviour
     #region Order object actions
 
         ///<summary>
-        /// Item object possible click actions.
+        /// Order object click action.
         ///</summary>
         private void OrderButtonAction(Order order, bool editable)
         {
@@ -396,15 +442,21 @@ public class OrderModel : MonoBehaviour
             }
         }
 
+        ///<summary>
+        /// Removes the <paramref name="orderToRemove"/> from the outgoing orders list and updates the outgoing order objects
+        ///</summary>
         private void RemoveFromOutgoingOrders(Order orderToRemove)
         {
             if(outgoingOrders.Contains(orderToRemove))
             {
                 outgoingOrders.Remove(orderToRemove);
             }
-            CreateOrderObjects(true, outgoingOrdersParent, outgoingOrders, spawnedOutgoingOrderObjects, true, false);
+            UpdateOrderObjects(true, outgoingOrdersParent, outgoingOrders, spawnedOutgoingOrderObjects, true, false);
         }
 
+        ///<summary>
+        /// Returns the <paramref name="orderBeingRemoved"/>'s item ammounts back to the apropriate stock items.
+        ///</summary>
         private void AddOutgoingItemsBackToStock(Order orderBeingRemoved)
         {
             foreach (InventoryItemInstance item in orderBeingRemoved.Items)
@@ -413,11 +465,14 @@ public class OrderModel : MonoBehaviour
             }
         }
 
+        ///<summary>
+        /// Shows the <paramref name="order"/>'s items in the apropriate panel defined by the <paramref name="isHistory"/> parameter.
+        ///</summary>
         private void ShowOrderItems(Order order, bool isHistory)
         {
             if(order != null)
             {
-                CreateItemObjects(
+                UpdateItemObjects(
                     Constants.ItemInteraction.NoInteraction,
                     (!isHistory) ? outgoingOrdersItemParent : orderHistoryItemPanel,
                     order.Items,
@@ -432,7 +487,8 @@ public class OrderModel : MonoBehaviour
     #region Item object actions
 
         ///<summary>
-        /// A button function of an item object, asigned at ItemObject instantiate.
+        /// Tries to parse the <paramref name="ammountString"/>, validates the parsed ammount and if valid adds the item to the curent order.
+        /// Returns false when parsing failed or the value is invalid.
         ///</summary>
         public bool ConfirmAddItemToCurentOrder(string ammountString)
         {
@@ -443,7 +499,7 @@ public class OrderModel : MonoBehaviour
                 return false;
             }
 
-            if(ammount > MaxQuantity(changeAmmountTargetItem) || ammount < 1)
+            if(ammount > MaxStockQuantity(changeAmmountTargetItem) || ammount < 1)
             {
                 view.ToggleAmmountPopupWarning(true);
                 return false;
@@ -460,7 +516,7 @@ public class OrderModel : MonoBehaviour
                 itemsInCurentOrder.Find(i => i.Item.ID == changeAmmountTargetItem.Item.ID).Quantity += ammount;
             }
 
-            CreateItemObjects(Constants.ItemInteraction.RemoveFromCart, currentOrderItemParent, itemsInCurentOrder, spawnedItemObjectsInOrder, true);
+            UpdateItemObjects(Constants.ItemInteraction.RemoveFromCart, currentOrderItemParent, itemsInCurentOrder, spawnedItemObjectsInOrder, true);
             changeAmmountTargetItem = null;
             return true;
         }
@@ -499,7 +555,7 @@ public class OrderModel : MonoBehaviour
         private void BeginAddItemToCurentOrder(InventoryItemInstance instanceToAdd)
         {
             changeAmmountTargetItem = instanceToAdd;
-            view.ToggleAmmountPopup(true, MaxQuantity(instanceToAdd), CartQuantity(instanceToAdd));
+            view.ToggleAmmountPopup(true, MaxStockQuantity(instanceToAdd), CartQuantity(instanceToAdd));
         }
 
         ///<summary>
@@ -511,7 +567,7 @@ public class OrderModel : MonoBehaviour
             {
                 itemsInCurentOrder.Remove(instanceToAdd);
             }
-            CreateItemObjects(Constants.ItemInteraction.RemoveFromCart, currentOrderItemParent, itemsInCurentOrder, spawnedItemObjectsInOrder, true);
+            UpdateItemObjects(Constants.ItemInteraction.RemoveFromCart, currentOrderItemParent, itemsInCurentOrder, spawnedItemObjectsInOrder, true);
         }
 
         ///<summary>
@@ -524,12 +580,12 @@ public class OrderModel : MonoBehaviour
 
     #endregion
 
-    #region QuantityUtils
+    #region Quantity Utils
 
         ///<summary>
         /// Returns the quantity left in stock for the given <paramref name="instanceToAdd"/>.
         ///</summary>
-        private int MaxQuantity(InventoryItemInstance instanceToAdd)
+        private int MaxStockQuantity(InventoryItemInstance instanceToAdd)
         {
             int maxAmmount = 0;
 
