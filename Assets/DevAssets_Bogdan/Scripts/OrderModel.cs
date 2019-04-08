@@ -436,18 +436,18 @@ public class OrderModel : MonoBehaviour
                     if(!spawnedList.Exists(i => i.ID.Equals(itemInstance.Item.ID)))
                     {
                         ItemObject newItemObject = Instantiate(itemObjectPrefab, parentTransform).GetComponent<ItemObject>();
-                        newItemObject.UpdateItemObject(interaction, itemInstance.Item.Name, itemInstance.Quantity, itemInstance.DiscountedPrice, () => ItemButtonAction(itemInstance, interaction), () => OpenStockEditPanel(itemInstance));
+                        newItemObject.UpdateItemObject(interaction, itemInstance, () => ItemButtonAction(itemInstance, interaction), () => OpenStockEditPanel(itemInstance));
                         spawnedList.Add(newItemObject);
                     }
                     else
                     {
-                        spawnedList.Find(i => i.ID.Equals(itemInstance.Item.ID)).UpdateItemObject(interaction, itemInstance.Item.Name, itemInstance.Quantity, itemInstance.DiscountedPrice, () => ItemButtonAction(itemInstance, interaction), () => OpenStockEditPanel(itemInstance));
+                        spawnedList.Find(i => i.ID.Equals(itemInstance.Item.ID)).UpdateItemObject(interaction, itemInstance, () => ItemButtonAction(itemInstance, interaction), () => OpenStockEditPanel(itemInstance));
                     }
                 }
                 else
                 {
                     ItemObject newItemObject = Instantiate(itemObjectPrefab, parentTransform).GetComponent<ItemObject>();
-                    newItemObject.UpdateItemObject(interaction, itemInstance.Item.Name, itemInstance.Quantity, itemInstance.DiscountedPrice, () => ItemButtonAction(itemInstance, interaction), () => OpenStockEditPanel(itemInstance));
+                    newItemObject.UpdateItemObject(interaction, itemInstance, () => ItemButtonAction(itemInstance, interaction), () => OpenStockEditPanel(itemInstance));
                 }
             }
         }

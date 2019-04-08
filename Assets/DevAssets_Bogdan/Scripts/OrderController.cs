@@ -76,7 +76,7 @@ public class OrderController : MonoBehaviour
     {
         if (model.ConfirmNewItemAdd(newItemNameField.text, newItemPriceField.text, newItemQuantityField.text, (int)newItemDiscountSlider.value))
         {
-            view.ToggleAddItemPanel(true);
+            view.ToggleAddItemPanel(false);
             newItemNameField.text = string.Empty;
             newItemPriceField.text = string.Empty;
             newItemQuantityField.text = string.Empty;
@@ -130,7 +130,6 @@ public class OrderController : MonoBehaviour
         model.SearchOrderHistory(historyClientSearchField.text);
     }
 
-
     ///<summary>
     /// Opens the item edit panel.
     ///</summary>
@@ -144,7 +143,7 @@ public class OrderController : MonoBehaviour
     }
 
     ///<summary>
-    /// Opens the item edit panel.
+    /// Confirms editing is finished on an item.
     ///</summary>
     public void ConfirmItemEdit()
     {
@@ -158,6 +157,9 @@ public class OrderController : MonoBehaviour
         }
     }
 
+    ///<summary>
+    /// Closes the edit panel and ends item editing.
+    ///</summary>
     public void CancelItemEdit()
     {
         model.CancelItemEdit();

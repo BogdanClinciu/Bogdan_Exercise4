@@ -5,6 +5,7 @@ using UnityEngine.Events;
 
 public class OrderView : MonoBehaviour
 {
+
     [Header("Panel parents")]
     [SerializeField]
     private GameObject outgoingOrdersPanel;
@@ -37,9 +38,27 @@ public class OrderView : MonoBehaviour
     [SerializeField]
     private RectTransform placeOutgoingContentsRect;
 
+    [Header("Discount Slider Texts and sliders")]
+    [SerializeField]
+    private Text discountSliderText;
+    [SerializeField]
+    private Text editDiscountSliderText;
+    [SerializeField]
+    private Slider newItemDiscountSlider;
+    [SerializeField]
+    private Slider editItemDiscountSlider;
 
-
-
+    public void UpdateDiscountLabel(bool isEdit)
+    {
+        if(isEdit)
+        {
+            editDiscountSliderText.text = editItemDiscountSlider.value.ToString();
+        }
+        else
+        {
+            discountSliderText.text = newItemDiscountSlider.value.ToString();
+        }
+    }
 
     public void OpenOutgoingOrdersPanel()
     {
@@ -98,11 +117,15 @@ public class OrderView : MonoBehaviour
 
     public void ToggleAddItemPanel(bool show)
     {
+        newItemDiscountSlider.value = 0;
+        discountSliderText.text = Constants.PERCENT;
         addNewItemParent.SetActive(show);
     }
 
     public void ToggleEditItemPanel(bool show)
     {
+        editItemDiscountSlider.value = 0;
+        editDiscountSliderText.text = Constants.PERCENT;
         ToggleEditItemWarning(false);
         editItemParent.SetActive(show);
     }

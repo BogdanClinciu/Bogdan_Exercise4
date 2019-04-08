@@ -63,7 +63,7 @@ public class ItemObject : MonoBehaviour
     ///<summary>
     ///Updates the item object's interface and assigns its button and double click actions.
     ///</summary>
-    public void UpdateItemObject(Constants.ItemInteraction interactionType, string itemName, int stock, float price, UnityAction clickAction, UnityAction doubleAction)
+    public void UpdateItemObject(Constants.ItemInteraction interactionType, InventoryItemInstance instance, UnityAction clickAction, UnityAction doubleAction)
     {
         switch (interactionType)
         {
@@ -98,10 +98,16 @@ public class ItemObject : MonoBehaviour
             }
         }
 
-        ID = itemName.ToLower();
-        itemNameText.text = itemName;
-        stockText.text = stock.ToString();
-        priceText.text = Constants.CURENCY_SYMBOL + price.ToString(Constants.CURENCY_FORMAT);
+        ID = instance.Item.Name.ToLower();
+        itemNameText.text = instance.Item.Name;
+        stockText.text = instance.Quantity.ToString();
+
+        priceText.text = (instance.discount > 0) ?
+            Constants.DIDSCOUNT_OLD_BEGIN + Constants.CURENCY_SYMBOL +  instance.Item.BasePrice + " -" + instance.discount + Constants.PERCENT + Constants.DIDSCOUNT_OLD_END + Constants.NEWLINE +
+            Constants.DIDSCOUNT_NEW_BEGIN + Constants.CURENCY_SYMBOL + instance.DiscountedPrice.ToString(Constants.CURENCY_FORMAT) + Constants.DIDSCOUNT_NEW_END :
+
+            Constants.CURENCY_SYMBOL + instance.DiscountedPrice.ToString(Constants.CURENCY_FORMAT);
+
         editButton.onClick.AddListener(clickAction);
         doubleClickAction = doubleAction;
         gameObject.SetActive(true);

@@ -4037,7 +4037,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 2013960465}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.99999994
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -4198,7 +4198,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.22451031, y: 0}
   m_AnchorMax: {x: 0.7754897, y: 0.25}
-  m_AnchoredPosition: {x: -0.000061035156, y: 0.0012512207}
+  m_AnchoredPosition: {x: -0.00012207031, y: 0.0012207031}
   m_SizeDelta: {x: -20, y: -20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &629078378
@@ -4472,7 +4472,18 @@ MonoBehaviour:
   m_Value: 0
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1139903301}
+        m_MethodName: UpdateDiscountLabel
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Slider+SliderEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!1 &666650232
@@ -4805,7 +4816,18 @@ MonoBehaviour:
   m_Value: 0
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1139903301}
+        m_MethodName: UpdateDiscountLabel
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Slider+SliderEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!1 &695573953
@@ -5278,7 +5300,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 00%
+  m_Text: 0
 --- !u!222 &747558364
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -7229,18 +7251,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f7c36879b2fb524abf68fa7b6305694, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  outgoingOrdersPanel: {fileID: 1125977929}
+  orderHistoryPanel: {fileID: 1511251193}
+  addNewItemParent: {fileID: 470827653}
+  editItemParent: {fileID: 1038531957}
+  placeOutgoingOrdersPanel: {fileID: 142356672}
   addItemWarning: {fileID: 1674540624}
   editItemWarning: {fileID: 629078376}
   finalizeOrderWarning: {fileID: 1872375623}
   ammountPpopupParent: {fileID: 15309943}
   ammountPromptMaxText: {fileID: 1171438318}
   ammountPromptWarningText: {fileID: 1707814769}
-  outgoingOrdersPanel: {fileID: 1125977929}
-  orderHistoryPanel: {fileID: 1511251193}
-  placeOutgoingOrdersPanel: {fileID: 142356672}
   placeOutgoingContentsRect: {fileID: 1425743974}
-  addNewItemParent: {fileID: 470827653}
-  editItemParent: {fileID: 1038531957}
+  discountSliderText: {fileID: 1255167158}
+  editDiscountSliderText: {fileID: 747558363}
+  newItemDiscountSlider: {fileID: 689996170}
+  editItemDiscountSlider: {fileID: 655989011}
 --- !u!1 &1171438316
 GameObject:
   m_ObjectHideFlags: 0
@@ -7808,7 +7834,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 00%
+  m_Text: 0
 --- !u!222 &1255167159
 CanvasRenderer:
   m_ObjectHideFlags: 0
