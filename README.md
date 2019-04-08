@@ -45,4 +45,4 @@ Temporary data such as outgoing orders is stored only at runtime within the appl
 - Objects: ItemObject.cs, OrderObject.cs and OrderSheetObject.cs handle their own UI and interactions as they are instantiated by the model.
 - BinaryST.cs contains the binary search tree with associated lookup, addition, removal etc. functions. The search tree has been made with a flexible type and virtually any class be used as the node value.
 - InventoryItem.cs and InventoryItemInstance.cs have been created in order to keep base item statistics and instance values such as quantity and discount value separate from their instances.
-- Constants.cs contains commonly used strings
+- Constants.cs contains commonly used values
