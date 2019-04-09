@@ -38,7 +38,8 @@ The application implements the MVC design structure:
 
 # Data type:
 Permanent data is saved as json but when loaded into the application it is organised into a binary search tree for quick access. This data includes item data and order history.
-Temporary data such as outgoing orders is stored only at runtime within the application.
+~~Temporary data such as outgoing orders is stored only at runtime within the application.~~
+Outgoing orders are also saved between sessions.
 
 # Additional notes
 - SaveDatabaseHandler.cs is used to load/save and assign the main saved data sets (inventory items and order history).
