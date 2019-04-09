@@ -178,13 +178,13 @@ public class OrderModel : MonoBehaviour
         int ammount = 1;
         if(!int.TryParse(ammountString, out ammount))
         {
-            view.ToggleAmmountPopupWarning(true);
+            view.ammountPanel.ShowErrorMessage(true);
             return false;
         }
 
         if(ammount > MaxStockQuantity(changeAmmountTargetItem) || ammount < 1)
         {
-            view.ToggleAmmountPopupWarning(true);
+            view.ammountPanel.ShowErrorMessage(true);
             return false;
         }
 
@@ -547,7 +547,8 @@ public class OrderModel : MonoBehaviour
         private void BeginAddItemToCurentOrder(InventoryItemInstance instanceToAdd)
         {
             changeAmmountTargetItem = instanceToAdd;
-            view.ToggleAmmountPopup(true, MaxStockQuantity(instanceToAdd), CartQuantity(instanceToAdd));
+            view.ammountPanel.OpenAmmountPanel(MaxStockQuantity(instanceToAdd),CartQuantity(instanceToAdd));
+            //view.ToggleAmmountPopup(true, MaxStockQuantity(instanceToAdd), CartQuantity(instanceToAdd));
         }
 
         ///<summary>

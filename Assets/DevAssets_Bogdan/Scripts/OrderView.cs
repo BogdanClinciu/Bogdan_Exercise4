@@ -7,6 +7,8 @@ public class OrderView : MonoBehaviour
 {
     [SerializeField]
     internal ItemEditHandler editPanel;
+    [SerializeField]
+    internal AmmountHandler ammountPanel;
 
     [Header("Object prefabs")]
     [SerializeField]
@@ -27,14 +29,6 @@ public class OrderView : MonoBehaviour
     [Header("Warning texts")]
     [SerializeField]
     private GameObject finalizeOrderWarning;
-
-    [Header("Ammount panel ui")]
-    [SerializeField]
-    private GameObject ammountPpopupParent;
-    [SerializeField]
-    private Text ammountPromptMaxText;
-    [SerializeField]
-    private GameObject ammountPromptWarningText;
 
     [Header("UI rebuild rects")]
     [SerializeField]
@@ -65,26 +59,6 @@ public class OrderView : MonoBehaviour
     {
         orderHistoryPanel.SetActive(false);
         outgoingOrdersPanel.SetActive(false);
-    }
-
-    ///<summary>
-    /// Toggles the ammount pupup to <paramref name="show"/> with the given <paramref name="maxAmmount"/> and <paramref name="cartAmmount"/>.
-    ///</summary>
-    internal void ToggleAmmountPopup(bool show, int maxAmmount, int cartAmmount)
-    {
-        ammountPpopupParent.SetActive(show);
-        ammountPromptMaxText.text =
-            Constants.AMMOUNT_INSTOCK_PREFIX + Constants.NEWLINE + maxAmmount + Constants.NEWLINE +
-            Constants.AMMOUNT_INCART_PREFIX + Constants.NEWLINE + cartAmmount;
-        ToggleAmmountPopupWarning(false);
-    }
-
-    ///<summary>
-    /// Toggles the ammount pupup warning to <paramref name="show"/>.
-    ///</summary>
-    internal void ToggleAmmountPopupWarning(bool show)
-    {
-        ammountPromptWarningText.SetActive(show);
     }
 
     ///<summary>

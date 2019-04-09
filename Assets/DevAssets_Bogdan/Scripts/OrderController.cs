@@ -20,9 +20,6 @@ public class OrderController : MonoBehaviour
     [SerializeField]
     private InputField historyClientSearchField;
 
-    [Header("Ammount popup panel")]
-    [SerializeField]
-    private InputField ammountPopupInputField;
 
 
     ///<summary>
@@ -31,10 +28,9 @@ public class OrderController : MonoBehaviour
     ///</summary>
     public void ConfirmAmmountToAdd()
     {
-        if(model.ConfirmAddItemToCurentOrder(ammountPopupInputField.text))
+        if(model.ConfirmAddItemToCurentOrder(view.ammountPanel.AmmountInput))
         {
-            view.ToggleAmmountPopup(false,0,0);
-            ammountPopupInputField.text = string.Empty;
+            view.ammountPanel.CloseAmmountPanel();
         }
     }
 

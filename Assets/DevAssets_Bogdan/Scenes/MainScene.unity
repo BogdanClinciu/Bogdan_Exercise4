@@ -1767,7 +1767,6 @@ MonoBehaviour:
   itemSearchField: {fileID: 0}
   clientNameField: {fileID: 0}
   historyClientSearchField: {fileID: 0}
-  ammountPopupInputField: {fileID: 0}
 --- !u!1 &179170221
 GameObject:
   m_ObjectHideFlags: 0
@@ -3680,7 +3679,7 @@ GameObject:
   - component: {fileID: 497161656}
   - component: {fileID: 497161655}
   m_Layer: 5
-  m_Name: Main Canvas
+  m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4265,8 +4264,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2013960467}
   m_HandleRect: {fileID: 2013960465}
   m_Direction: 2
-  m_Value: 1
-  m_Size: 0.99999994
+  m_Value: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -5349,7 +5348,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.25}
   m_AnchorMax: {x: 0.35, y: 1}
-  m_AnchoredPosition: {x: -14.999908, y: -2.5}
+  m_AnchoredPosition: {x: -15.0000305, y: -2.5}
   m_SizeDelta: {x: -50, y: -15}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &831189279
@@ -5753,7 +5752,6 @@ MonoBehaviour:
   itemSearchField: {fileID: 1715471045}
   clientNameField: {fileID: 1513881276}
   historyClientSearchField: {fileID: 22163775}
-  ammountPopupInputField: {fileID: 343072208}
 --- !u!1 &970762928
 GameObject:
   m_ObjectHideFlags: 0
@@ -6717,6 +6715,7 @@ GameObject:
   - component: {fileID: 1139903300}
   - component: {fileID: 1139903301}
   - component: {fileID: 1139903302}
+  - component: {fileID: 1139903303}
   m_Layer: 0
   m_Name: _VIEW
   m_TagString: Untagged
@@ -6751,6 +6750,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   editPanel: {fileID: 1139903302}
+  ammountPanel: {fileID: 1139903303}
   itemObjectPrefab: {fileID: 774971031035477334, guid: cd6bcb4597a72664c97b7a7c7cd02a13,
     type: 3}
   orderObjectPrefab: {fileID: 774971031035477334, guid: c076be1baa0566b48993e00bdc7b6b70,
@@ -6761,9 +6761,6 @@ MonoBehaviour:
   orderHistoryPanel: {fileID: 1511251193}
   placeOutgoingOrdersPanel: {fileID: 142356672}
   finalizeOrderWarning: {fileID: 1872375623}
-  ammountPpopupParent: {fileID: 15309943}
-  ammountPromptMaxText: {fileID: 1171438318}
-  ammountPromptWarningText: {fileID: 1707814769}
   placeOutgoingContentsRect: {fileID: 1425743974}
 --- !u!114 &1139903302
 MonoBehaviour:
@@ -6786,6 +6783,22 @@ MonoBehaviour:
   discountSlider: {fileID: 689996170}
   addNewButton: {fileID: 1846608527}
   confirmEditButton: {fileID: 1681931860}
+--- !u!114 &1139903303
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1139903299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cbf2ec569165614cb6f025ed3b71994, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ammountParent: {fileID: 15309943}
+  errorText: {fileID: 1707814769}
+  ammountInputField: {fileID: 343072208}
+  maxAmmountText: {fileID: 1171438318}
 --- !u!1 &1171438316
 GameObject:
   m_ObjectHideFlags: 0
@@ -11785,8 +11798,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 42530920}
   m_HandleRect: {fileID: 42530919}
   m_Direction: 2
-  m_Value: 1
-  m_Size: 0.99999994
+  m_Value: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
