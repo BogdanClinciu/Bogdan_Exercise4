@@ -5,7 +5,8 @@ using UnityEngine.Events;
 
 public class OrderView : MonoBehaviour
 {
-    public ItemEditHandler editPanel;
+    [SerializeField]
+    internal ItemEditHandler editPanel;
 
     [Header("Object prefabs")]
     [SerializeField]
@@ -69,7 +70,7 @@ public class OrderView : MonoBehaviour
     ///<summary>
     /// Toggles the ammount pupup to <paramref name="show"/> with the given <paramref name="maxAmmount"/> and <paramref name="cartAmmount"/>.
     ///</summary>
-    public void ToggleAmmountPopup(bool show, int maxAmmount, int cartAmmount)
+    internal void ToggleAmmountPopup(bool show, int maxAmmount, int cartAmmount)
     {
         ammountPpopupParent.SetActive(show);
         ammountPromptMaxText.text =
@@ -81,7 +82,7 @@ public class OrderView : MonoBehaviour
     ///<summary>
     /// Toggles the ammount pupup warning to <paramref name="show"/>.
     ///</summary>
-    public void ToggleAmmountPopupWarning(bool show)
+    internal void ToggleAmmountPopupWarning(bool show)
     {
         ammountPromptWarningText.SetActive(show);
     }
@@ -89,7 +90,7 @@ public class OrderView : MonoBehaviour
     ///<summary>
     /// Closes opens the outgoing orders panel if the  <paramref name="validated"/> parameter is true, else it displays a preset error message.
     ///</summary>
-    public void FinalizeOrderAction(bool validated)
+    internal void FinalizeOrderAction(bool validated)
     {
         if(!validated)
         {
@@ -104,7 +105,7 @@ public class OrderView : MonoBehaviour
     ///<summary>
     /// Toggles the placed orders (order sheets) panel to <paramref name="show"/>.
     ///</summary>
-    public void TogglePlaceOrdersPanel(bool show)
+    internal void TogglePlaceOrdersPanel(bool show)
     {
         placeOutgoingOrdersPanel.SetActive(show);
         LayoutRebuilder.ForceRebuildLayoutImmediate(placeOutgoingContentsRect);
@@ -116,7 +117,7 @@ public class OrderView : MonoBehaviour
         /// Creates the order sheet objects from the given <paramref name="outgoingOrders"/>, clears the <paramref name="spawnedOrderSheets"/>.
         /// Objects are instantiated into the apropriate <paramref name="orderSheetParent"/>.
         ///</summary>
-        public void UpdateSheetObjects(
+        internal void UpdateSheetObjects(
             RectTransform orderSheetParent,
             List<Order> outgoingOrders,
             List<OrderSheetObject> spawnedOrderSheets,
@@ -154,7 +155,7 @@ public class OrderView : MonoBehaviour
         /// Creates the item objects from the given <paramref name="itemList"/> if they do not already exist in the provided <paramref name="spawnedList"/>, and disables ones that are not present.
         /// Objects are instantiated into the apropriate <paramref name="parentTransform"/>, and the <paramref name="interaction"/> enum determines the possible functions of the updated objects.
         ///</summary>
-        public void UpdateItemObjects(
+        internal void UpdateItemObjects(
             Constants.ItemInteraction interaction,
             RectTransform parentTransform,
             List<InventoryItemInstance> itemList,
@@ -211,7 +212,7 @@ public class OrderView : MonoBehaviour
         /// Creates the order objects from the given <paramref name="orderList"/> if they do not already exist in the provided <paramref name="spawnedList"/>, and disables ones that are not present.
         /// Objects are instantiated into the apropriate <paramref name="parentTransform"/>, and the <paramref name="canEdit"/> bool determines the presence of a remove function for the updated objects.
         ///</summary>
-        public void UpdateOrderObjects(
+        internal void UpdateOrderObjects(
             bool canEdit,
             RectTransform parentTransform,
             List<Order> orderList,

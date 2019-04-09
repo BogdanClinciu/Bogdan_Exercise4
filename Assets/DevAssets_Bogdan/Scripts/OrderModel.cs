@@ -72,12 +72,26 @@ public class OrderModel : MonoBehaviour
         LoadDatabases();
         SearchInventory(null);
         SearchOrderHistory(null);
+
+        if(outgoingOrders.Count > 0)
+        {
+             view.UpdateOrderObjects(
+                    true,
+                    outgoingOrdersParent,
+                    outgoingOrders,
+                    spawnedOutgoingOrderObjects,
+                    true,
+                    false,
+                    OrderRemoveAction,
+                    ShowOrderItems
+                    );
+        }
     }
 
     ///<summary>
     /// Clears all items from the curent order.
     ///</summary>
-    public void ClearCurentOrderPanel()
+    internal void ClearCurentOrderPanel()
     {
         foreach (ItemObject item in spawnedItemObjectsInOrder)
         {
@@ -89,7 +103,7 @@ public class OrderModel : MonoBehaviour
     ///<summary>
     /// Returns item to add validity. On a succesfull validation the item will be added to the inventory, and the item database will be saved.
     ///</summary>
-    public bool ConfirmNewItemAdd(string name, string basePrice, string quantity, int discount)
+    internal bool ConfirmNewItemAdd(string name, string basePrice, string quantity, int discount)
     {
         if(inventory.ContainsId(name.ToLower()))
         {
@@ -116,21 +130,21 @@ public class OrderModel : MonoBehaviour
         // view -> update inventory items
         SearchInventory(null);
 
-        SavedDatabaseHandler.SaveDatabase<InventoryItemInstance>(inventory.ToOrderedList());
+        SavedDatabaseHandler.SaveDatabase<InventoryItemInstance>(inventory.ToOrderedList(), true);
         return true;
     }
 
     ///<summary>
     /// Validates the stock modification and saves the modified item. Returns false on invalid entry for price or quantity.
     ///</summary>
-    public bool ConfirmStockEdit(string priceString, string ammountString, int discount)
+    internal bool ConfirmStockEdit(string priceString, string ammountString, int discount)
     {
         float price = 0f;
         float.TryParse(priceString, out price);
         int ammount = -1;
         int.TryParse(ammountString, out ammount);
 
-        if (price < 1 || ammount < 0)
+        if (price < 0 || ammount < 0)
         {
             return false;
         }
@@ -142,7 +156,7 @@ public class OrderModel : MonoBehaviour
         item.discount = discount;
 
         //save the database
-        SavedDatabaseHandler.SaveDatabase<InventoryItemInstance>(inventory.ToOrderedList());
+        SavedDatabaseHandler.SaveDatabase<InventoryItemInstance>(inventory.ToOrderedList(), true);
         SearchInventory(null);
         return true;
     }
@@ -150,7 +164,7 @@ public class OrderModel : MonoBehaviour
     ///<summary>
     /// Cleares the change ammount target
     ///</summary>
-    public void CancelItemEdit()
+    internal void CancelItemEdit()
     {
         changeAmmountTargetItem = null;
     }
@@ -159,7 +173,7 @@ public class OrderModel : MonoBehaviour
     /// Tries to parse the <paramref name="ammountString"/>, validates the parsed ammount and if valid adds the item to the curent order.
     /// Returns false when parsing failed or the value is invalid.
     ///</summary>
-    public bool ConfirmAddItemToCurentOrder(string ammountString)
+    internal bool ConfirmAddItemToCurentOrder(string ammountString)
     {
         int ammount = 1;
         if(!int.TryParse(ammountString, out ammount))
@@ -204,7 +218,7 @@ public class OrderModel : MonoBehaviour
         ///<summary>
         /// Validates outgoing orders and on success promps view to creates sheet objects for each order.
         ///</summary>
-        public bool BeginPlaceOutgoingOrders()
+        internal bool BeginPlaceOutgoingOrders()
     {
         if(outgoingOrders.Count < 1)
         {
@@ -220,7 +234,7 @@ public class OrderModel : MonoBehaviour
         /// Adds the finalized outgoing orders to history and deletes the sheet objects creared to show them.
         // Also triggeres save request for both stock values and order history.
         ///</summary>
-        public void ConfirmPlaceOutgoingOrders()
+        internal void ConfirmPlaceOutgoingOrders()
         {
             foreach (Order order in outgoingOrders)
             {
@@ -249,15 +263,16 @@ public class OrderModel : MonoBehaviour
             spawnedOrderSheets.Clear();
 
             //Save the updated inventory database and order history
-            SavedDatabaseHandler.SaveDatabase<InventoryItemInstance>(inventory.ToOrderedList());
-            SavedDatabaseHandler.SaveDatabase<Order>(orderHistory.ToOrderedList());
+            SavedDatabaseHandler.SaveDatabase<InventoryItemInstance>(inventory.ToOrderedList(), true);
+            SavedDatabaseHandler.SaveDatabase<Order>(orderHistory.ToOrderedList(), true);
+            SavedDatabaseHandler.SaveDatabase<Order>(outgoingOrders, false);
             SearchOrderHistory(null);
         }
 
         ///<summary>
         /// Returns validity of the given <paramref name= "clientName"/> and if valid adds the curent order to the outgoing orders list.
         ///</summary>
-        public bool ConfirmFinalizeOrder(string clientName)
+        internal bool ConfirmFinalizeOrder(string clientName)
         {
             if(string.IsNullOrEmpty(clientName))
             {
@@ -328,6 +343,9 @@ public class OrderModel : MonoBehaviour
                 ItemButtonAction,
                 OpenStockEditPanel
                 );
+
+            SavedDatabaseHandler.SaveDatabase<InventoryItemInstance>(inventory.ToOrderedList(), true);
+            SavedDatabaseHandler.SaveDatabase<Order>(outgoingOrders, false);
             return true;
         }
 
@@ -338,7 +356,7 @@ public class OrderModel : MonoBehaviour
         ///<summary>
         /// Searches the item inventory for the requested item query, if the query string matches an id exactly it will insead return the item matching that id.
         ///</summary>
-        public void SearchInventory(string searchQuery)
+        internal void SearchInventory(string searchQuery)
         {
             List<InventoryItemInstance> searchResults = new List<InventoryItemInstance>();
             //get results from bst -> request update in view
@@ -379,7 +397,7 @@ public class OrderModel : MonoBehaviour
         ///<summary>
         /// Searches the order history for the requested client query, if the query string matches an id exactly it will insead return the order matching that id.
         ///</summary>
-        public void SearchOrderHistory(string searchQuery)
+        internal void SearchOrderHistory(string searchQuery)
         {
             List<Order> searchResults = new List<Order>();
             //get results from bst -> request update in view
@@ -608,7 +626,7 @@ public class OrderModel : MonoBehaviour
         List<InventoryItemInstance> itemData;
         List<string> itemDataIDs = new List<string>();
 
-        SavedDatabaseHandler.LoadDatabase<InventoryItemInstance>(out itemData);
+        SavedDatabaseHandler.LoadDatabase<InventoryItemInstance>(out itemData,true);
 
         for (int i = 0; i < itemData.Count; i++)
         {
@@ -621,7 +639,7 @@ public class OrderModel : MonoBehaviour
         List<Order> orderData;
         List<string> orderDataIDs = new List<string>();
 
-        SavedDatabaseHandler.LoadDatabase<Order>(out orderData);
+        SavedDatabaseHandler.LoadDatabase<Order>(out orderData,true);
 
         for (int i = 0; i < orderData.Count; i++)
         {
@@ -629,6 +647,8 @@ public class OrderModel : MonoBehaviour
         }
 
         orderHistory = new BinaryST<Order>(orderData, orderDataIDs);
+
+        SavedDatabaseHandler.LoadDatabase<Order>(out outgoingOrders,false);
     }
 
 }
