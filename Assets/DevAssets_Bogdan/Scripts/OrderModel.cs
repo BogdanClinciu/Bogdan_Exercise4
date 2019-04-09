@@ -65,9 +65,6 @@ public class OrderModel : MonoBehaviour
             spawnedHistoryItemObjects = new List<ItemObject>();
             spawnedOrderSheets = new List<OrderSheetObject>();
             spawnedOrderHistoryObjects = new List<OrderObject>();
-
-            inventory = new BinaryST<InventoryItemInstance>();
-            orderHistory = new BinaryST<Order>();
             itemsInCurentOrder = new List<InventoryItemInstance>();
             outgoingOrders = new List<Order>();
         #endregion
@@ -204,7 +201,7 @@ public class OrderModel : MonoBehaviour
     #region Order finalization and placement logic
 
         ///<summary>
-        /// Validates outgoing orders and on success creates sheet objects for each order.
+        /// Validates outgoing orders and on success promps view to creates sheet objects for each order.
         ///</summary>
         public bool BeginPlaceOutgoingOrders()
     {
@@ -239,7 +236,7 @@ public class OrderModel : MonoBehaviour
                 spawnedOutgoingOrderObjects,
                 true,
                 false,
-                OrderButtonAction,
+                OrderRemoveAction,
                 ShowOrderItems
                 );
 
@@ -292,7 +289,7 @@ public class OrderModel : MonoBehaviour
                     spawnedOutgoingOrderObjects,
                     true,
                     false,
-                    OrderButtonAction,
+                    OrderRemoveAction,
                     ShowOrderItems
                     );
             }
@@ -306,7 +303,7 @@ public class OrderModel : MonoBehaviour
                     spawnedOutgoingOrderObjects,
                     true,
                     false,
-                    OrderButtonAction,
+                    OrderRemoveAction,
                     ShowOrderItems
                     );
             }
@@ -415,7 +412,7 @@ public class OrderModel : MonoBehaviour
                 spawnedOrderHistoryObjects,
                 false,
                 true,
-                OrderButtonAction,
+                OrderRemoveAction,
                 ShowOrderItems
                 );
         }
@@ -425,9 +422,9 @@ public class OrderModel : MonoBehaviour
     #region Order object actions
 
         ///<summary>
-        /// Order object click action.
+        /// Order object remove action. Assigned to the order object on instantiation
         ///</summary>
-        private void OrderButtonAction(Order order, bool editable)
+        private void OrderRemoveAction(Order order, bool editable)
         {
             if(editable)
             {
@@ -444,7 +441,7 @@ public class OrderModel : MonoBehaviour
         }
 
         ///<summary>
-        /// Removes the <paramref name="orderToRemove"/> from the outgoing orders list and updates the outgoing order objects
+        /// Removes the <paramref name="orderToRemove"/> from the outgoing orders list and updates promps the view to update the outgoing order objects
         ///</summary>
         private void RemoveFromOutgoingOrders(Order orderToRemove)
         {
@@ -458,7 +455,7 @@ public class OrderModel : MonoBehaviour
                 spawnedOutgoingOrderObjects,
                 true,
                 false,
-                OrderButtonAction,
+                OrderRemoveAction,
                 ShowOrderItems
                 );
         }
@@ -475,7 +472,7 @@ public class OrderModel : MonoBehaviour
         }
 
         ///<summary>
-        /// Shows the <paramref name="order"/>'s items in the apropriate panel defined by the <paramref name="isHistory"/> parameter.
+        /// Promps the view to show the <paramref name="order"/>'s items in the apropriate panel defined by the <paramref name="isHistory"/> parameter.
         ///</summary>
         private void ShowOrderItems(Order order, bool isHistory)
         {
@@ -498,7 +495,7 @@ public class OrderModel : MonoBehaviour
     #region Item object actions
 
         ///<summary>
-        /// Item object possible click actions.
+        /// Item object possible click actions switch.
         ///</summary>
         private void ItemButtonAction(InventoryItemInstance instance, Constants.ItemInteraction interaction)
         {
@@ -526,7 +523,7 @@ public class OrderModel : MonoBehaviour
         }
 
         ///<summary>
-        /// Sets the item to add as <paramref name="instanceToAdd"/> and triggers the ammount prompt trough the view.
+        /// ItemObject function, Sets the item to add as <paramref name="instanceToAdd"/> and triggers the ammount prompt trough the view.
         ///</summary>
         private void BeginAddItemToCurentOrder(InventoryItemInstance instanceToAdd)
         {
@@ -535,7 +532,7 @@ public class OrderModel : MonoBehaviour
         }
 
         ///<summary>
-        /// A button function of an item object, asigned at ItemObject instantiate.
+        /// ItemObject function, asigned at ItemObject instantiate.
         ///</summary>
         private void RemoveItemFromCurentOrder(InventoryItemInstance instanceToAdd)
         {
@@ -554,7 +551,7 @@ public class OrderModel : MonoBehaviour
         }
 
         ///<summary>
-        /// Opens the stock edit menu.
+        /// ItemObject function, promps the view to opens the stock edit menu with the <paramref name="instanceToEdit"/>.
         ///</summary>
         private void OpenStockEditPanel(InventoryItemInstance instanceToEdit)
         {
@@ -567,7 +564,7 @@ public class OrderModel : MonoBehaviour
     #region Quantity Utils
 
         ///<summary>
-        /// Returns the quantity left in stock for the given <paramref name="instanceToAdd"/>.
+        /// Returns the quantity left in stock for the given <paramref name="instanceToAdd"/>, considering the ammount of items already in the cart.
         ///</summary>
         private int MaxStockQuantity(InventoryItemInstance instanceToAdd)
         {
@@ -603,7 +600,7 @@ public class OrderModel : MonoBehaviour
     #endregion
 
     ///<summary>
-    /// Loads the item, order and historyDatabases and populates the relevant binary search trees.
+    /// Loads the inventory and historyDatabases and populates the relevant binary search trees.
     ///</summary>
     private void LoadDatabases()
     {

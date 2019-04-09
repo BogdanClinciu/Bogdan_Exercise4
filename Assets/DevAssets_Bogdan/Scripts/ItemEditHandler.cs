@@ -13,16 +13,17 @@ public class ItemEditHandler : MonoBehaviour
     [SerializeField]
     private Text percentText;
 
+    [Header("User inputs")]
     [SerializeField]
     private InputField nameInput;
     [SerializeField]
     private InputField priceInput;
     [SerializeField]
     private InputField quantityInput;
-
     [SerializeField]
     private Slider discountSlider;
 
+    [Header("Toggle buttons")]
     [SerializeField]
     private GameObject addNewButton;
     [SerializeField]
@@ -33,11 +34,17 @@ public class ItemEditHandler : MonoBehaviour
     internal string QuantityInput {get => quantityInput.text;}
     internal int DiscountInput {get => (int)discountSlider.value;}
 
+    ///<summary>
+    /// Updates the slider percent text, asigned to the discount sliderțs onValueChangesd field.
+    ///</summary>
     public void UpdateSliderText()
     {
         percentText.text = discountSlider.value.ToString() + Constants.PERCENT;
     }
 
+    ///<summary>
+    /// Opens the add/edit panel and updates ui for adding a new item.
+    ///</summary>
     public void OpenPanel()
     {
         nameInput.interactable = true;
@@ -52,6 +59,9 @@ public class ItemEditHandler : MonoBehaviour
         confirmEditButton.SetActive(false);
     }
 
+    ///<summary>
+    /// Opens the add/edit panel and updates ui for editing the item <paramref name="instanceToEdit"/>.
+    ///</summary>
     public void OpenPanel(InventoryItemInstance instanceToEdit)
     {
         nameInput.interactable = false;
@@ -66,11 +76,17 @@ public class ItemEditHandler : MonoBehaviour
         confirmEditButton.SetActive(true);
     }
 
+    ///<summary>
+    /// Displays the given <paramref name="errorString"/>.
+    ///</summary>
     public void DisplayErrorMessage(string errorString)
     {
         errorText.text = errorString;
     }
 
+    ///<summary>
+    /// Closes the add/edit item panel.
+    ///</summary>
     public void ClosePanel()
     {
         editItemParent.SetActive(false);

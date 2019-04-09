@@ -39,25 +39,36 @@ public class OrderView : MonoBehaviour
     [SerializeField]
     private RectTransform placeOutgoingContentsRect;
 
-
+    ///<summary>
+    /// Opens the outgoing orders pannel
+    ///</summary>
     public void OpenOutgoingOrdersPanel()
     {
         outgoingOrdersPanel.SetActive(true);
         orderHistoryPanel.SetActive(false);
     }
 
+    ///<summary>
+    /// Opens the orders history pannel
+    ///</summary>
     public void OpenOrderHistoryPanel()
     {
         orderHistoryPanel.SetActive(true);
         outgoingOrdersPanel.SetActive(false);
     }
 
+    ///<summary>
+    /// Opens the inventory and curent order pannel
+    ///</summary>
     public void OpenInventoryPanel()
     {
         orderHistoryPanel.SetActive(false);
         outgoingOrdersPanel.SetActive(false);
     }
 
+    ///<summary>
+    /// Toggles the ammount pupup to <paramref name="show"/> with the given <paramref name="maxAmmount"/> and <paramref name="cartAmmount"/>.
+    ///</summary>
     public void ToggleAmmountPopup(bool show, int maxAmmount, int cartAmmount)
     {
         ammountPpopupParent.SetActive(show);
@@ -67,11 +78,17 @@ public class OrderView : MonoBehaviour
         ToggleAmmountPopupWarning(false);
     }
 
+    ///<summary>
+    /// Toggles the ammount pupup warning to <paramref name="show"/>.
+    ///</summary>
     public void ToggleAmmountPopupWarning(bool show)
     {
         ammountPromptWarningText.SetActive(show);
     }
 
+    ///<summary>
+    /// Closes opens the outgoing orders panel if the  <paramref name="validated"/> parameter is true, else it displays a preset error message.
+    ///</summary>
     public void FinalizeOrderAction(bool validated)
     {
         if(!validated)
@@ -84,6 +101,9 @@ public class OrderView : MonoBehaviour
         OpenOutgoingOrdersPanel();
     }
 
+    ///<summary>
+    /// Toggles the placed orders (order sheets) panel to <paramref name="show"/>.
+    ///</summary>
     public void TogglePlaceOrdersPanel(bool show)
     {
         placeOutgoingOrdersPanel.SetActive(show);
@@ -92,6 +112,10 @@ public class OrderView : MonoBehaviour
 
     #region Object Updating/Creation
 
+        ///<summary>
+        /// Creates the order sheet objects from the given <paramref name="outgoingOrders"/>, clears the <paramref name="spawnedOrderSheets"/>.
+        /// Objects are instantiated into the apropriate <paramref name="orderSheetParent"/>.
+        ///</summary>
         public void UpdateSheetObjects(
             RectTransform orderSheetParent,
             List<Order> outgoingOrders,
