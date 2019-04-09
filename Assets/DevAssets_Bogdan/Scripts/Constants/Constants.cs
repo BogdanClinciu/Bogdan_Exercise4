@@ -9,6 +9,9 @@
     public const string AMMOUNT_INSTOCK_PREFIX = "In stock:";
     public const string AMMOUNT_INCART_PREFIX = "In order:";
 
+    public const string ERROR_ADD = "An item with this name already exists, please edit that item";
+    public const string ERROR_EDIT = "Please enter valid ammounts for price and quantity";
+
     public const string DIDSCOUNT_OLD_BEGIN = "<size=10><color=#800000ff>";
     public const string DIDSCOUNT_OLD_END = "</color></size>";
 

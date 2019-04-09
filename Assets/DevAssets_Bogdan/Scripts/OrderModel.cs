@@ -5,20 +5,7 @@ using UnityEngine;
 public class OrderModel : MonoBehaviour
 {
     [SerializeField]
-    private OrderController controller;
-    [SerializeField]
     private OrderView view;
-
-    #region ObjectPrefabs
-        [Header("Object prefabs")]
-
-        [SerializeField]
-        private GameObject itemObjectPrefab;
-        [SerializeField]
-        private GameObject orderObjectPrefab;
-        [SerializeField]
-        private GameObject orderSheetObjectPrefab;
-    #endregion
 
     #region Data sets
 
@@ -31,46 +18,36 @@ public class OrderModel : MonoBehaviour
     #endregion
 
     #region Spawned item Parents and lists
-        [Header("Inventory/CurentOrder spawn parents")]
-        #region Invenory and Outgoing
-            [SerializeField]
-            private RectTransform inventoryItemParent;
-            [SerializeField]
-            private RectTransform currentOrderItemParent;
 
-            private List<ItemObject> spawnedInventoryItemObjects;
-            private List<ItemObject> spawnedItemObjectsInOrder;
-        #endregion
+        [Header("Inventory/CurentOrder spawn parents")]
+        [SerializeField]
+        private RectTransform inventoryItemParent;
+        [SerializeField]
+        private RectTransform currentOrderItemParent;
 
         [Header("Order history spawn parents")]
-        #region OrderHistory
-            [SerializeField]
-            private RectTransform orderHistoryParent;
-            [SerializeField]
-            private RectTransform orderHistoryItemPanel;
-
-            private List<OrderObject> spawnedOrderHistoryObjects;
-            private List<ItemObject> spawnedHistoryItemObjects;
-        #endregion
+        [SerializeField]
+        private RectTransform orderHistoryParent;
+        [SerializeField]
+        private RectTransform orderHistoryItemPanel;
 
         [Header("Outgoing orders spawn parents")]
-        #region Outgoing orders
-            [SerializeField]
-            private RectTransform outgoingOrdersParent;
-            [SerializeField]
-            private RectTransform outgoingOrdersItemParent;
+        [SerializeField]
+        private RectTransform outgoingOrdersParent;
+        [SerializeField]
+        private RectTransform outgoingOrdersItemParent;
 
-            private List<OrderObject> spawnedOutgoingOrderObjects;
-            private List<ItemObject> spawnedOutgoingItemObjects;
-        #endregion
+        [Header("Order sheet spawn parent")]
+        [SerializeField]
+        private RectTransform orderSheetParent;
 
-        [Header("OrderSheet spawn parents")]
-        #region Order Sheets (placed orders)
-            [SerializeField]
-            private RectTransform orderSheetParent;
-
-            private List<OrderSheetObject> spawnedOrderSheets;
-        #endregion
+        private List<ItemObject> spawnedInventoryItemObjects;
+        private List<ItemObject> spawnedItemObjectsInOrder;
+        private List<OrderObject> spawnedOrderHistoryObjects;
+        private List<ItemObject> spawnedHistoryItemObjects;
+        private List<OrderObject> spawnedOutgoingOrderObjects;
+        private List<ItemObject> spawnedOutgoingItemObjects;
+        private List<OrderSheetObject> spawnedOrderSheets;
 
     #endregion
 
@@ -119,7 +96,7 @@ public class OrderModel : MonoBehaviour
     {
         if(inventory.ContainsId(name))
         {
-            view.ToggleAddItemWarning(true);
+            view.editPanel.DisplayErrorMessage(Constants.ERROR_ADD);
             return false;
         }
 
@@ -127,6 +104,12 @@ public class OrderModel : MonoBehaviour
         int.TryParse(quantity, out quant);
         float price = 1.0f;
         float.TryParse(basePrice, out price);
+
+        if(quant < 0 || price < 0)
+        {
+            view.editPanel.DisplayErrorMessage(Constants.ERROR_EDIT);
+            return false;
+        }
 
         InventoryItem itemBase = new InventoryItem(name, price);
         InventoryItemInstance itemInstance = new InventoryItemInstance(quant, discount, itemBase);
@@ -204,7 +187,15 @@ public class OrderModel : MonoBehaviour
             itemsInCurentOrder.Find(i => i.Item.ID == changeAmmountTargetItem.Item.ID).Quantity += ammount;
         }
 
-        UpdateItemObjects(Constants.ItemInteraction.RemoveFromCart, currentOrderItemParent, itemsInCurentOrder, spawnedItemObjectsInOrder, true);
+        view.UpdateItemObjects(
+            Constants.ItemInteraction.RemoveFromCart,
+            currentOrderItemParent,
+            itemsInCurentOrder,
+            spawnedItemObjectsInOrder,
+            true,
+            ItemButtonAction,
+            OpenStockEditPanel
+            );
         changeAmmountTargetItem = null;
         return true;
     }
@@ -222,30 +213,7 @@ public class OrderModel : MonoBehaviour
             return false;
         }
 
-
-        //clear placed orders from before
-        foreach (OrderSheetObject sheet in spawnedOrderSheets)
-        {
-            Destroy(sheet.gameObject);
-        }
-        spawnedOrderSheets.Clear();
-
-        //populate the place orders panel
-        foreach (Order order in outgoingOrders)
-        {
-            OrderSheetObject newOrderSheet = Instantiate(orderSheetObjectPrefab, orderSheetParent).GetComponent<OrderSheetObject>();
-            newOrderSheet.UpdateOrderSheetItem(order);
-            RectTransform newOrderSheetParent = newOrderSheet.GetComponent<RectTransform>();
-            UpdateItemObjects(
-                Constants.ItemInteraction.NoInteraction,
-                newOrderSheetParent,
-                order.Items,
-                null,
-                false
-            );
-
-            spawnedOrderSheets.Add(newOrderSheet);
-        }
+        view.UpdateSheetObjects(orderSheetParent, outgoingOrders, spawnedOrderSheets, ItemButtonAction, OpenStockEditPanel);
 
         return true;
     }
@@ -264,7 +232,16 @@ public class OrderModel : MonoBehaviour
             //add outgoing to history
             //clear the outgoing list
             outgoingOrders.Clear();
-            UpdateOrderObjects(false, outgoingOrdersParent, outgoingOrders, spawnedOutgoingOrderObjects, true, false);
+            view.UpdateOrderObjects(
+                false,
+                outgoingOrdersParent,
+                outgoingOrders,
+                spawnedOutgoingOrderObjects,
+                true,
+                false,
+                OrderButtonAction,
+                ShowOrderItems
+                );
 
             //destroy placed orders from placed panel
             foreach (OrderSheetObject sheet in spawnedOrderSheets)
@@ -308,12 +285,30 @@ public class OrderModel : MonoBehaviour
                         existingOrder.Items.Add(new InventoryItemInstance(item));
                     }
                 }
-                UpdateOrderObjects(true, outgoingOrdersParent, outgoingOrders, spawnedOutgoingOrderObjects, true, false);
+                view.UpdateOrderObjects(
+                    true,
+                    outgoingOrdersParent,
+                    outgoingOrders,
+                    spawnedOutgoingOrderObjects,
+                    true,
+                    false,
+                    OrderButtonAction,
+                    ShowOrderItems
+                    );
             }
             else
             {
                 outgoingOrders.Add(new Order(clientName.ToLower(), clientName, new List<InventoryItemInstance>(itemsInCurentOrder)));
-                UpdateOrderObjects(true, outgoingOrdersParent, outgoingOrders, spawnedOutgoingOrderObjects, true, false);
+                view.UpdateOrderObjects(
+                    true,
+                    outgoingOrdersParent,
+                    outgoingOrders,
+                    spawnedOutgoingOrderObjects,
+                    true,
+                    false,
+                    OrderButtonAction,
+                    ShowOrderItems
+                    );
             }
 
             //remove item quantities from stock
@@ -326,7 +321,15 @@ public class OrderModel : MonoBehaviour
 
             //clear curent order
             itemsInCurentOrder.Clear();
-            UpdateItemObjects(Constants.ItemInteraction.NoInteraction, currentOrderItemParent, itemsInCurentOrder, spawnedItemObjectsInOrder, true);
+            view.UpdateItemObjects(
+                Constants.ItemInteraction.NoInteraction,
+                currentOrderItemParent,
+                itemsInCurentOrder,
+                spawnedItemObjectsInOrder,
+                true,
+                ItemButtonAction,
+                OpenStockEditPanel
+                );
             return true;
         }
 
@@ -347,21 +350,32 @@ public class OrderModel : MonoBehaviour
             {
                 if(inventory.ContainsId(searchQuery.ToLower()))
                 {
+                    //display single matching item
                     searchResults.Add(inventory.GetNodeAt(searchQuery.ToLower()).NodeValue);
-                    UpdateItemObjects(Constants.ItemInteraction.AddToCart, inventoryItemParent, searchResults, spawnedInventoryItemObjects, false);
-                    return;
+                }
+                else
+                {
+                    //display items matching
+                    searchResults = inventory.All(item => item.id.ToLower().StartsWith(searchQuery.ToLower()));
                 }
 
-                //display items matching
-                searchResults = inventory.All(item => item.id.ToLower().StartsWith(searchQuery.ToLower()));
-                UpdateItemObjects(Constants.ItemInteraction.AddToCart, inventoryItemParent, searchResults, spawnedInventoryItemObjects, false);
-                return;
+            }
+            else
+            {
+                //display all items
+                searchResults = inventory.ToOrderedList();
             }
 
             //display all items
-            searchResults = inventory.ToOrderedList();
-            UpdateItemObjects(Constants.ItemInteraction.AddToCart, inventoryItemParent, searchResults, spawnedInventoryItemObjects, false);
-
+            view.UpdateItemObjects(
+                Constants.ItemInteraction.AddToCart,
+                inventoryItemParent,
+                searchResults,
+                spawnedInventoryItemObjects,
+                false,
+                ItemButtonAction,
+                OpenStockEditPanel
+                );
         }
 
         ///<summary>
@@ -377,123 +391,33 @@ public class OrderModel : MonoBehaviour
             {
                 if(orderHistory.ContainsId(searchQuery.ToLower()))
                 {
+                    //display single matching item
                     searchResults.Add(orderHistory.GetNodeAt(searchQuery.ToLower()).NodeValue);
-                    UpdateOrderObjects(false, orderHistoryParent, searchResults, spawnedOrderHistoryObjects, false, true);
-                    return;
-                }
-
-                //display items matching
-                searchResults = orderHistory.All(item => item.id.ToLower().StartsWith(searchQuery.ToLower()));
-                UpdateOrderObjects(false, orderHistoryParent, searchResults, spawnedOrderHistoryObjects, false, true);
-                return;
-            }
-
-            //display all items
-            searchResults = orderHistory.ToOrderedList();
-            UpdateOrderObjects(false, orderHistoryParent, searchResults, spawnedOrderHistoryObjects, false, true);
-        }
-
-    #endregion
-
-    //Private from here
-    #region Object update/creation functions
-
-        ///<summary>
-        /// Creates the item objects from the given <paramref name="itemList"/> if they do not already exist in the provided <paramref name="spawnedList"/>, and disables ones that are not present.
-        /// Objects are instantiated into the apropriate <paramref name="parentTransform"/>, and the <paramref name="interaction"/> enum determines the possible functions of the updated objects.
-        ///</summary>
-        private void UpdateItemObjects(
-            Constants.ItemInteraction interaction,
-            RectTransform parentTransform,
-            List<InventoryItemInstance> itemList,
-            List<ItemObject> spawnedList,
-            bool destroyObjects)
-        {
-            if(spawnedList != null)
-            {
-                foreach (ItemObject item in spawnedList)
-                {
-                    if(!destroyObjects)
-                    {
-                        item.gameObject.SetActive(false);
-                    }
-                    else
-                    {
-                        Destroy(item.gameObject);
-                    }
-                }
-
-                if(destroyObjects)
-                {
-                    spawnedList.Clear();
-                }
-            }
-
-            foreach (InventoryItemInstance itemInstance in itemList)
-            {
-                if(spawnedList != null)
-                {
-                    if(!spawnedList.Exists(i => i.ID.Equals(itemInstance.Item.ID)))
-                    {
-                        ItemObject newItemObject = Instantiate(itemObjectPrefab, parentTransform).GetComponent<ItemObject>();
-                        newItemObject.UpdateItemObject(interaction, itemInstance, () => ItemButtonAction(itemInstance, interaction), () => OpenStockEditPanel(itemInstance));
-                        spawnedList.Add(newItemObject);
-                    }
-                    else
-                    {
-                        spawnedList.Find(i => i.ID.Equals(itemInstance.Item.ID)).UpdateItemObject(interaction, itemInstance, () => ItemButtonAction(itemInstance, interaction), () => OpenStockEditPanel(itemInstance));
-                    }
                 }
                 else
                 {
-                    ItemObject newItemObject = Instantiate(itemObjectPrefab, parentTransform).GetComponent<ItemObject>();
-                    newItemObject.UpdateItemObject(interaction, itemInstance, () => ItemButtonAction(itemInstance, interaction), () => OpenStockEditPanel(itemInstance));
+                    //display items matching
+                    searchResults = orderHistory.All(item => item.id.ToLower().StartsWith(searchQuery.ToLower()));
                 }
-            }
-        }
 
-        ///<summary>
-        /// Creates the order objects from the given <paramref name="orderList"/> if they do not already exist in the provided <paramref name="spawnedList"/>, and disables ones that are not present.
-        /// Objects are instantiated into the apropriate <paramref name="parentTransform"/>, and the <paramref name="canEdit"/> bool determines the presence of a remove function for the updated objects.
-        ///</summary>
-        private void UpdateOrderObjects(
-            bool canEdit,
-            RectTransform parentTransform,
-            List<Order> orderList,
-            List<OrderObject> spawnedList,
-            bool destroyObjects,
-            bool isHistory)
-        {
-            foreach (OrderObject orderObject in spawnedList)
+
+            }
+            else
             {
-                if(!destroyObjects)
-                {
-                    orderObject.gameObject.SetActive(false);
-                }
-                else
-                {
-                    Destroy(orderObject.gameObject);
-                }
+                //display all items
+                searchResults = orderHistory.ToOrderedList();
             }
 
-            if(destroyObjects)
-            {
-                spawnedList.Clear();
-            }
-
-            foreach (Order order in orderList)
-            {
-                if(!spawnedList.Exists(i => i.ID.Equals(order.ID)))
-                {
-                    OrderObject newOrderObject = Instantiate(orderObjectPrefab, parentTransform).GetComponent<OrderObject>();
-                    newOrderObject.UpdateOrderObject(canEdit, order.ClientName, order.TotalCost(), order.TotalDiscount(), () => OrderButtonAction(order, true), () => ShowOrderItems(order, isHistory));
-                    spawnedList.Add(newOrderObject);
-                }
-                else
-                {
-                    spawnedList.Find(i => i.ID.Equals(order.ID)).UpdateOrderObject(canEdit, order.ClientName, order.TotalCost(), order.TotalDiscount(), () => OrderButtonAction(order, true), () => ShowOrderItems(order, isHistory));
-                }
-            }
+            view.UpdateOrderObjects(
+                false,
+                orderHistoryParent,
+                searchResults,
+                spawnedOrderHistoryObjects,
+                false,
+                true,
+                OrderButtonAction,
+                ShowOrderItems
+                );
         }
 
     #endregion
@@ -528,7 +452,15 @@ public class OrderModel : MonoBehaviour
             {
                 outgoingOrders.Remove(orderToRemove);
             }
-            UpdateOrderObjects(true, outgoingOrdersParent, outgoingOrders, spawnedOutgoingOrderObjects, true, false);
+            view.UpdateOrderObjects(
+                true, outgoingOrdersParent,
+                outgoingOrders,
+                spawnedOutgoingOrderObjects,
+                true,
+                false,
+                OrderButtonAction,
+                ShowOrderItems
+                );
         }
 
         ///<summary>
@@ -549,12 +481,14 @@ public class OrderModel : MonoBehaviour
         {
             if(order != null)
             {
-                UpdateItemObjects(
+                view.UpdateItemObjects(
                     Constants.ItemInteraction.NoInteraction,
                     (!isHistory) ? outgoingOrdersItemParent : orderHistoryItemPanel,
                     order.Items,
                     (!isHistory) ? spawnedOutgoingItemObjects : spawnedHistoryItemObjects,
-                    true
+                    true,
+                    ItemButtonAction,
+                    OpenStockEditPanel
                 );
             }
         }
@@ -609,7 +543,14 @@ public class OrderModel : MonoBehaviour
             {
                 itemsInCurentOrder.Remove(instanceToAdd);
             }
-            UpdateItemObjects(Constants.ItemInteraction.RemoveFromCart, currentOrderItemParent, itemsInCurentOrder, spawnedItemObjectsInOrder, true);
+            view.UpdateItemObjects(
+                Constants.ItemInteraction.RemoveFromCart,
+                currentOrderItemParent, itemsInCurentOrder,
+                spawnedItemObjectsInOrder,
+                true,
+                ItemButtonAction,
+                OpenStockEditPanel
+                );
         }
 
         ///<summary>
@@ -618,7 +559,7 @@ public class OrderModel : MonoBehaviour
         private void OpenStockEditPanel(InventoryItemInstance instanceToEdit)
         {
             changeAmmountTargetItem = instanceToEdit;
-            controller.OpenItemEditPanel(instanceToEdit);
+            view.editPanel.OpenPanel(instanceToEdit);
         }
 
     #endregion

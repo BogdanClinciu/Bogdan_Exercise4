@@ -20,30 +20,10 @@ public class OrderController : MonoBehaviour
     [SerializeField]
     private InputField historyClientSearchField;
 
-    [Header("Add new item panel")]
-    [SerializeField]
-    private InputField newItemNameField;
-    [SerializeField]
-    private InputField newItemPriceField;
-    [SerializeField]
-    private InputField newItemQuantityField;
-    [SerializeField]
-    private Slider newItemDiscountSlider;
-
     [Header("Ammount popup panel")]
     [SerializeField]
     private InputField ammountPopupInputField;
 
-
-    [Header("Edit item panel")]
-    [SerializeField]
-    private Text editItemNameField;
-    [SerializeField]
-    private InputField editItemPriceField;
-    [SerializeField]
-    private InputField editItemQuantityField;
-    [SerializeField]
-    private Slider editItemDiscountSlider;
 
     ///<summary>
     /// Confirms the ammount to add to the curent order of the selected item.
@@ -74,14 +54,9 @@ public class OrderController : MonoBehaviour
     ///</summary>
     public void ConfirmNewItem()
     {
-        if (model.ConfirmNewItemAdd(newItemNameField.text, newItemPriceField.text, newItemQuantityField.text, (int)newItemDiscountSlider.value))
+        if (model.ConfirmNewItemAdd(view.editPanel.NameInput, view.editPanel.PriceInput, view.editPanel.QuantityInput, view.editPanel.DiscountInput))
         {
-            view.ToggleAddItemPanel(false);
-            newItemNameField.text = string.Empty;
-            newItemPriceField.text = string.Empty;
-            newItemQuantityField.text = string.Empty;
-            newItemDiscountSlider.value = 0;
-            Debug.Log("Added item");
+            view.editPanel.ClosePanel();
         }
     }
 
@@ -131,29 +106,17 @@ public class OrderController : MonoBehaviour
     }
 
     ///<summary>
-    /// Opens the item edit panel.
-    ///</summary>
-    public void OpenItemEditPanel(InventoryItemInstance instanceToEdit)
-    {
-        view.ToggleEditItemPanel(true);
-        editItemNameField.text = instanceToEdit.Item.Name;
-        editItemPriceField.text = Constants.CURENCY_SYMBOL + instanceToEdit.Item.BasePrice.ToString(Constants.CURENCY_FORMAT);
-        editItemQuantityField.text = instanceToEdit.Quantity.ToString();
-        editItemDiscountSlider.value = instanceToEdit.discount;
-    }
-
-    ///<summary>
     /// Confirms editing is finished on an item.
     ///</summary>
     public void ConfirmItemEdit()
     {
-        if(model.ConfirmStockEdit(editItemPriceField.text, editItemQuantityField.text, (int)editItemDiscountSlider.value))
+        if(model.ConfirmStockEdit(view.editPanel.PriceInput, view.editPanel.QuantityInput, view.editPanel.DiscountInput))
         {
-            view.ToggleEditItemPanel(false);
+            view.editPanel.ClosePanel();
         }
         else
         {
-            view.ToggleEditItemWarning(true);
+            view.editPanel.DisplayErrorMessage(Constants.ERROR_EDIT);
         }
     }
 
@@ -163,7 +126,7 @@ public class OrderController : MonoBehaviour
     public void CancelItemEdit()
     {
         model.CancelItemEdit();
-        view.ToggleEditItemPanel(false);
+        view.editPanel.ClosePanel();
     }
 
 }

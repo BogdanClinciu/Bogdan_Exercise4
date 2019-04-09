@@ -5,6 +5,15 @@ using UnityEngine.Events;
 
 public class OrderView : MonoBehaviour
 {
+    public ItemEditHandler editPanel;
+
+    [Header("Object prefabs")]
+    [SerializeField]
+    private GameObject itemObjectPrefab;
+    [SerializeField]
+    private GameObject orderObjectPrefab;
+    [SerializeField]
+    private GameObject orderSheetObjectPrefab;
 
     [Header("Panel parents")]
     [SerializeField]
@@ -12,17 +21,9 @@ public class OrderView : MonoBehaviour
     [SerializeField]
     private GameObject orderHistoryPanel;
     [SerializeField]
-    private GameObject addNewItemParent;
-    [SerializeField]
-    private GameObject editItemParent;
-    [SerializeField]
     private GameObject placeOutgoingOrdersPanel;
 
     [Header("Warning texts")]
-    [SerializeField]
-    private GameObject addItemWarning;
-    [SerializeField]
-    private GameObject editItemWarning;
     [SerializeField]
     private GameObject finalizeOrderWarning;
 
@@ -38,27 +39,6 @@ public class OrderView : MonoBehaviour
     [SerializeField]
     private RectTransform placeOutgoingContentsRect;
 
-    [Header("Discount Slider Texts and sliders")]
-    [SerializeField]
-    private Text discountSliderText;
-    [SerializeField]
-    private Text editDiscountSliderText;
-    [SerializeField]
-    private Slider newItemDiscountSlider;
-    [SerializeField]
-    private Slider editItemDiscountSlider;
-
-    public void UpdateDiscountLabel(bool isEdit)
-    {
-        if(isEdit)
-        {
-            editDiscountSliderText.text = editItemDiscountSlider.value.ToString();
-        }
-        else
-        {
-            discountSliderText.text = newItemDiscountSlider.value.ToString();
-        }
-    }
 
     public void OpenOutgoingOrdersPanel()
     {
@@ -76,11 +56,6 @@ public class OrderView : MonoBehaviour
     {
         orderHistoryPanel.SetActive(false);
         outgoingOrdersPanel.SetActive(false);
-    }
-
-    public void ToggleAddItemWarning(bool show)
-    {
-        addItemWarning.SetActive(show);
     }
 
     public void ToggleAmmountPopup(bool show, int maxAmmount, int cartAmmount)
@@ -115,23 +90,145 @@ public class OrderView : MonoBehaviour
         LayoutRebuilder.ForceRebuildLayoutImmediate(placeOutgoingContentsRect);
     }
 
-    public void ToggleAddItemPanel(bool show)
-    {
-        newItemDiscountSlider.value = 0;
-        discountSliderText.text = Constants.PERCENT;
-        addNewItemParent.SetActive(show);
-    }
+    #region Object Updating/Creation
 
-    public void ToggleEditItemPanel(bool show)
-    {
-        editItemDiscountSlider.value = 0;
-        editDiscountSliderText.text = Constants.PERCENT;
-        ToggleEditItemWarning(false);
-        editItemParent.SetActive(show);
-    }
+        public void UpdateSheetObjects(
+            RectTransform orderSheetParent,
+            List<Order> outgoingOrders,
+            List<OrderSheetObject> spawnedOrderSheets,
+            UnityAction<InventoryItemInstance,Constants.ItemInteraction> buttonAction,
+            UnityAction<InventoryItemInstance> doubleClickAction
+            )
+        {
+            foreach (OrderSheetObject sheet in spawnedOrderSheets)
+            {
+                Destroy(sheet.gameObject);
+            }
+            spawnedOrderSheets.Clear();
 
-    public void ToggleEditItemWarning(bool show)
-    {
-        editItemWarning.SetActive(show);
-    }
+            //populate the place orders panel
+            foreach (Order order in outgoingOrders)
+            {
+                OrderSheetObject newOrderSheet = Instantiate(orderSheetObjectPrefab, orderSheetParent).GetComponent<OrderSheetObject>();
+                newOrderSheet.UpdateOrderSheetItem(order);
+                RectTransform newOrderSheetParent = newOrderSheet.GetComponent<RectTransform>();
+                UpdateItemObjects(
+                    Constants.ItemInteraction.NoInteraction,
+                    newOrderSheetParent,
+                    order.Items,
+                    null,
+                    false,
+                    buttonAction,
+                    doubleClickAction
+                );
+
+                spawnedOrderSheets.Add(newOrderSheet);
+            }
+        }
+
+        ///<summary>
+        /// Creates the item objects from the given <paramref name="itemList"/> if they do not already exist in the provided <paramref name="spawnedList"/>, and disables ones that are not present.
+        /// Objects are instantiated into the apropriate <paramref name="parentTransform"/>, and the <paramref name="interaction"/> enum determines the possible functions of the updated objects.
+        ///</summary>
+        public void UpdateItemObjects(
+            Constants.ItemInteraction interaction,
+            RectTransform parentTransform,
+            List<InventoryItemInstance> itemList,
+            List<ItemObject> spawnedList,
+            bool destroyObjects,
+            UnityAction<InventoryItemInstance,Constants.ItemInteraction> buttonAction,
+            UnityAction<InventoryItemInstance> doubleClickAction
+            )
+        {
+            if(spawnedList != null)
+            {
+                foreach (ItemObject item in spawnedList)
+                {
+                    if(!destroyObjects)
+                    {
+                        item.gameObject.SetActive(false);
+                    }
+                    else
+                    {
+                        Destroy(item.gameObject);
+                    }
+                }
+
+                if(destroyObjects)
+                {
+                    spawnedList.Clear();
+                }
+            }
+
+            foreach (InventoryItemInstance itemInstance in itemList)
+            {
+                if(spawnedList != null)
+                {
+                    if(!spawnedList.Exists(i => i.ID.Equals(itemInstance.Item.ID)))
+                    {
+                        ItemObject newItemObject = Instantiate(itemObjectPrefab, parentTransform).GetComponent<ItemObject>();
+                        newItemObject.UpdateItemObject(interaction, itemInstance, () => buttonAction(itemInstance, interaction), () => doubleClickAction(itemInstance));
+                        spawnedList.Add(newItemObject);
+                    }
+                    else
+                    {
+                        spawnedList.Find(i => i.ID.Equals(itemInstance.Item.ID)).UpdateItemObject(interaction, itemInstance, () => buttonAction(itemInstance, interaction), () => doubleClickAction(itemInstance));
+                    }
+                }
+                else
+                {
+                    ItemObject newItemObject = Instantiate(itemObjectPrefab, parentTransform).GetComponent<ItemObject>();
+                    newItemObject.UpdateItemObject(interaction, itemInstance, () => buttonAction(itemInstance, interaction), () => doubleClickAction(itemInstance));
+                }
+            }
+        }
+
+        ///<summary>
+        /// Creates the order objects from the given <paramref name="orderList"/> if they do not already exist in the provided <paramref name="spawnedList"/>, and disables ones that are not present.
+        /// Objects are instantiated into the apropriate <paramref name="parentTransform"/>, and the <paramref name="canEdit"/> bool determines the presence of a remove function for the updated objects.
+        ///</summary>
+        public void UpdateOrderObjects(
+            bool canEdit,
+            RectTransform parentTransform,
+            List<Order> orderList,
+            List<OrderObject> spawnedList,
+            bool destroyObjects,
+            bool isHistory,
+            UnityAction<Order,bool> removeAction,
+            UnityAction<Order,bool> viewAction
+            )
+        {
+            foreach (OrderObject orderObject in spawnedList)
+            {
+                if(!destroyObjects)
+                {
+                    orderObject.gameObject.SetActive(false);
+                }
+                else
+                {
+                    Destroy(orderObject.gameObject);
+                }
+            }
+
+            if(destroyObjects)
+            {
+                spawnedList.Clear();
+            }
+
+            foreach (Order order in orderList)
+            {
+                if(!spawnedList.Exists(i => i.ID.Equals(order.ID)))
+                {
+                    OrderObject newOrderObject = Instantiate(orderObjectPrefab, parentTransform).GetComponent<OrderObject>();
+                    newOrderObject.UpdateOrderObject(canEdit, order.ClientName, order.TotalCost(), order.TotalDiscount(), () => removeAction(order, true), () => viewAction(order, isHistory));
+                    spawnedList.Add(newOrderObject);
+                }
+                else
+                {
+                    spawnedList.Find(i => i.ID.Equals(order.ID)).UpdateOrderObject(canEdit, order.ClientName, order.TotalCost(), order.TotalDiscount(), () => removeAction(order, true), () => viewAction(order, isHistory));
+                }
+            }
+        }
+
+    #endregion
 }
