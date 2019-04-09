@@ -91,8 +91,9 @@ public class OrderModel : MonoBehaviour
     ///</summary>
     public bool ConfirmNewItemAdd(string name, string basePrice, string quantity, int discount)
     {
-        if(inventory.ContainsId(name))
+        if(inventory.ContainsId(name.ToLower()))
         {
+            view.editPanel.OpenPanel(inventory.GetNodeAt(name.ToLower()).NodeValue);
             view.editPanel.DisplayErrorMessage(Constants.ERROR_ADD);
             return false;
         }

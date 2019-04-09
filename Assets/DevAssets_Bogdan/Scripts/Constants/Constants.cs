@@ -15,7 +15,7 @@ public class Constants
     public const string OLD_PRICE_LABEL = "Old price: ";
 
     //Error text messages
-    public const string ERROR_ADD = "An item with this name already exists, please edit that item";
+    public const string ERROR_ADD = "An item with this name already exists, please edit this item";
     public const string ERROR_EDIT = "Please enter valid ammounts for price and quantity";
 
     //Discount old price markup

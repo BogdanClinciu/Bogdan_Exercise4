@@ -16,6 +16,9 @@ public class BinaryST<T>
         topNode.id = topNodeId;
     }
 
+    ///<summary>
+    /// Constructs a balanced binary search tree from <paramref name="dataList"/> (used for node values), and <paramref name="nameList"/> (used for node ids).
+    ///</summary>
     public BinaryST(List<T> dataList, List<string> nameList)
     {
         RecursiveFromList(dataList, nameList, ref topNode, 0, dataList.Count - 1);
@@ -23,8 +26,9 @@ public class BinaryST<T>
 
     #region BinaryST Operations
 
-        // TODO: Add foreach if needed
-
+        ///<summary>
+        /// Populates the binary search tree with node values from <paramref name="dataList"/>, and ids from <paramref name="nameList"/>, this also balances the binary search tree.
+        ///</summary>
         private void RecursiveFromList(List<T> dataList, List<string> nameList, ref Node<T> refNode, int start, int end)
         {
             if(end - start < 0)
@@ -33,13 +37,16 @@ public class BinaryST<T>
             }
 
             int mid = (end + start)/2;
-            //Debug.Log("mid = " + end + "+" + start + " = " + mid);
+
             refNode = new Node<T>(dataList[mid], nameList[mid]);
 
             RecursiveFromList(dataList, nameList, ref refNode.LeftNode, start, mid - 1);
             RecursiveFromList(dataList, nameList, ref refNode.RightNode, mid + 1, end);
         }
 
+        ///<summary>
+        /// Returns an in order list of all the node values.
+        ///</summary>
         public List<T> ToOrderedList()
         {
             List<T> returnList = new List<T>();
@@ -49,17 +56,26 @@ public class BinaryST<T>
             return returnList;
         }
 
+        ///<summary>
+        /// Returns the node at the given <paramref name="id"/>.
+        ///</summary>
         public Node<T> GetNodeAt(string id)
         {
             return NodeAtID(ref topNode, id);
         }
 
+        ///<summary>
+        /// Adds the given <paramref name="node"/> to the first matching position within the tree.
+        ///</summary>
         public void Add(Node<T> node)
         {
             AddRecursive(ref topNode, node);
             //topNode = BalanceTree(topNode);
         }
 
+        ///<summary>
+        /// Removes a note at <paramref name="nodeId"/> exists from the tree if it exists.
+        ///</summary>
         public void Remove(string nodeId)
         {
             if(ContainsId(nodeId))
@@ -73,16 +89,25 @@ public class BinaryST<T>
             }
         }
 
+        ///<summary>
+        /// Returns true if a node with <paramref name="node"/>'s id exists within the tree.
+        ///</summary>
         public bool ContainsId(Node<T> node)
         {
             return ContainsIdRecursive(ref topNode, node.id);
         }
 
+        ///<summary>
+        /// Returns true if a node with <paramref name="nodeId"/> exists within the tree.
+        ///</summary>
         public bool ContainsId(string nodeId)
         {
             return ContainsIdRecursive(ref topNode, nodeId);
         }
 
+        ///<summary>
+        /// Returns true if there are any matches for <paramref name="predicate"/>.
+        ///</summary>
         public bool Any(System.Predicate<Node<T>> predicate)
         {
             bool retunBool = false;
@@ -90,6 +115,9 @@ public class BinaryST<T>
             return retunBool;
         }
 
+        ///<summary>
+        /// Returns all node values matching the <paramref name="predicate"/>.
+        ///</summary>
         public List<T> All(System.Predicate<Node<T>> predicate)
         {
             List<T> returnList = new List<T>();
@@ -97,6 +125,9 @@ public class BinaryST<T>
             return returnList;
         }
 
+        ///<summary>
+        /// Applies <paramref name="doAction"/> to all nodes of the binary search tree.
+        ///</summary>
         public void DoForeach(System.Action<Node<T>> doAction)
         {
             DoForeachRecursive(ref topNode, doAction);
@@ -106,6 +137,9 @@ public class BinaryST<T>
 
     #region Private recursives
 
+        ///<summary>
+        /// Travels the entire tree and applies the <paramref name="doAction"/> to all nodes.
+        ///</summary>
         private void DoForeachRecursive(ref Node<T> node, System.Action<Node<T>> doAction)
         {
             if(node == null)
@@ -119,6 +153,9 @@ public class BinaryST<T>
             DoForeachRecursive(ref node.RightNode, doAction);
         }
 
+        ///<summary>
+        /// Travels the entire tree looking for a predicate match. Adds all matches to <paramref name="returnList"/>.
+        ///</summary>
         private void AllRecursive(ref Node<T> node, System.Predicate<Node<T>> predicate, List<T> returnList)
         {
             if(node == null)
@@ -135,6 +172,9 @@ public class BinaryST<T>
             AllRecursive(ref node.RightNode, predicate, returnList);
         }
 
+        ///<summary>
+        /// Revursively travels the tree in order adding items to the <paramref name="returnList"/>.
+        ///</summary>
         private void ToListAscending(ref Node<T> refNode, ref List<T> returnList)
         {
             if(refNode != (null))
@@ -149,6 +189,9 @@ public class BinaryST<T>
             }
         }
 
+        ///<summary>
+        /// Travels the entire tree looking for a predicate match, sets the <paramref name="found"/> parameter true on the first match.
+        ///</summary>
         private void AnyRecursive(ref Node<T> node, System.Predicate<Node<T>> predicate, ref bool found)
         {
             if(node == null)
@@ -164,55 +207,35 @@ public class BinaryST<T>
 
             AnyRecursive(ref node.LeftNode, predicate, ref found);
             AnyRecursive(ref node.RightNode, predicate, ref found);
-            // if(node.LeftNode != null)
-            // {
-            //     if(predicate(node.LeftNode))
-            //     {
-            //         return true;
-            //     }
-            //     else
-            //     {
-            //         AnyRecursive(ref node.LeftNode, predicate);
-            //     }
-            // }
-
-            // if(node.RightNode != null)
-            // {
-
-            //     if(predicate(node.RightNode))
-            //     {
-            //         return true;
-            //     }
-            //     else
-            //     {
-            //         AnyRecursive(ref node.RightNode, predicate);
-            //     }
-            // }
-
-            // return false;
         }
 
-        private void AddRecursive(ref Node<T> refNode, Node<T> node)
+        ///<summary>
+        /// Travels the tree on the apropriate branch and adds the <paramref name="nodeToAdd"/> to the first null value down the right branch.
+        ///</summary>
+        private void AddRecursive(ref Node<T> refNode, Node<T> nodeToAdd)
         {
             //Check if the topnode is null
             if(refNode == null)
             {
                 //Whenever we find a node reference that is null (going either left or right) we set that node
-                refNode = new Node<T>(node);
+                refNode = new Node<T>(nodeToAdd);
                 return;
             }
-            else if (refNode.id.CompareTo(node.id) > 0)
+            else if (refNode.id.CompareTo(nodeToAdd.id) > 0)
             {
-                AddRecursive(ref refNode.LeftNode, node);
+                AddRecursive(ref refNode.LeftNode, nodeToAdd);
                 return;
             }
-            else if (refNode.id.CompareTo(node.id) <= 0)
+            else if (refNode.id.CompareTo(nodeToAdd.id) <= 0)
             {
-                AddRecursive(ref refNode.RightNode, node);
+                AddRecursive(ref refNode.RightNode, nodeToAdd);
                 return;
             }
         }
 
+        ///<summary>
+        /// Recursively travels the tree and returns true if <paramref name="idToLookFor"/> exists.
+        ///</summary>
         private bool ContainsIdRecursive(ref Node<T> refNode, string idToLookFor)
         {
             //Check if the topnode is null
@@ -241,6 +264,9 @@ public class BinaryST<T>
             }
         }
 
+        ///<summary>
+        /// Recursively travels the tree until the node with <paramref name="removeId"/> is found, and then checks what operation is needed to remove that node.
+        ///</summary>
         private void RemoveRecursive(ref Node<T> refNode, string removeId)
         {
             // find the right node
@@ -263,6 +289,9 @@ public class BinaryST<T>
 
         }
 
+        ///<summary>
+        /// Returns the apropriate node to remove/replace.
+        ///</summary>
         private void RemoveRecursiveCheck(ref Node<T> nodeToRemove)
         {
             if(nodeToRemove.LeftNode.Equals(null) && nodeToRemove.RightNode.Equals(null))
@@ -286,6 +315,9 @@ public class BinaryST<T>
             }
         }
 
+        ///<summary>
+        /// Returns the lowest node at the botom right from the first given <paramref name="refNode"/>.
+        ///</summary>
         private Node<T> MinInRightBranch(ref Node<T> refNode)
         {
             if(refNode.LeftNode.Equals(null))
@@ -298,6 +330,9 @@ public class BinaryST<T>
             }
         }
 
+        ///<summary>
+        /// Recirsively travels the tree only in the direction of the given <paramref name="id"/>.
+        ///</summary>
         private Node<T> NodeAtID(ref Node<T> refNode, string id)
         {
             if(refNode.id == id.ToLower())
